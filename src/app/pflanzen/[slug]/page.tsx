@@ -33,8 +33,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${plant.title} | Gruenkalender`,
-    description: `${plant.title}: kompakte Hinweise zu Standort, Pflanzzeit, Pflege und Ernte.`,
+    title: plant.seo.title,
+    description: plant.seo.description,
   };
 }
 
@@ -50,9 +50,11 @@ export default async function PlantDetailPage({ params }: PlantPageProps) {
     <PageShell>
       <section className="max-w-3xl space-y-5 py-8 md:py-12">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 md:text-4xl">
-          {plant.title}
+          {plant.name}
         </h1>
-        <p className="text-base leading-8 text-zinc-600 md:text-lg">{plant.intro}</p>
+        <p className="text-base leading-8 text-zinc-600 md:text-lg">
+          {plant.content.intro}
+        </p>
       </section>
 
       <section className="grid gap-5 pb-10 md:grid-cols-2 md:pb-14">
@@ -63,7 +65,7 @@ export default async function PlantDetailPage({ params }: PlantPageProps) {
           >
             <h2 className="text-xl font-semibold text-zinc-900">{section.label}</h2>
             <p className="mt-3 text-sm leading-7 text-zinc-600">
-              {plant[section.key]}
+              {plant.content[section.key]}
             </p>
           </article>
         ))}

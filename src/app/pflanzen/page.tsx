@@ -23,8 +23,8 @@ export default function PflanzenOverviewPage() {
             key={plant.slug}
             className="rounded-2xl border border-emerald-900/10 bg-white/65 p-6"
           >
-            <h2 className="text-xl font-semibold text-zinc-900">{plant.title}</h2>
-            <p className="mt-3 text-sm leading-7 text-zinc-600">{plant.intro}</p>
+            <h2 className="text-xl font-semibold text-zinc-900">{plant.name}</h2>
+            <p className="mt-3 text-sm leading-7 text-zinc-600">{plant.summary}</p>
             <Link
               href={`/pflanzen/${plant.slug}`}
               className="mt-5 inline-flex text-sm font-semibold text-emerald-800 transition-colors hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
