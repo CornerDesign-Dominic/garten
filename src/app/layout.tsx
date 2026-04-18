@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="de" className={`${manrope.variable} h-full`}>
       <body className="min-h-full bg-[var(--page-green)] font-sans text-zinc-800 antialiased">
         <Header />
-        <main className="pb-16 pt-20">{children}</main>
+        <main className="px-4 pb-24 pt-24 sm:px-6 sm:pt-28 lg:px-10">{children}</main>
         <Footer />
       </body>
     </html>
