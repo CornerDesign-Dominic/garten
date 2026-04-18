@@ -5,29 +5,29 @@ export const gurken: Plant = {
   slug: "gurken",
   category: "fruchtgemuese",
   lifecycle: "einjaehrig",
-  summary: "Schnellwachsende Waermekultur mit laufender Ernte bei konstanter Wasserversorgung.",
+  summary: "Schnellwachsende Wärmekultur mit laufender Ernte bei konstanter Wasserversorgung.",
   seo: {
-    title: "Gurken | Gruenkalender",
+    title: "Gurken | Grünkalender",
     description: "Gurken im Garten: Standort, Pflanzzeit, Pflege, Ernte und saisonale Zeitfenster auf einen Blick.",
   },
   content: {
     intro:
-      "Gurken entwickeln bei warmen Bedingungen und gleichmaessiger Feuchte einen hohen Ertrag ueber den gesamten Sommer.",
+      "Gurken entwickeln bei warmen Bedingungen und gleichmäßiger Feuchte einen hohen Ertrag über den gesamten Sommer.",
     standort:
-      "Sonnig bis halbschattig, warm und geschuetzt. Der Boden sollte locker, humos und naehrstoffreich sein.",
+      "Sonnig bis halbschattig, warm und geschützt. Der Boden sollte locker, humos und nährstoffreich sein.",
     pflanzzeit:
-      "Vorzucht ab April. Auspflanzen ins Freiland ab Mitte Mai, sobald die Naechte stabil warm sind.",
+      "Vorzucht ab April. Auspflanzen ins Freiland ab Mitte Mai, sobald die Nächte stabil warm sind.",
     pflege:
-      "Regelmaessig giessen, Boden mulchen und Triebe an Rankhilfen fuehren. In Schubphasen moderat nachduengen.",
+      "Regelmäßig gießen, Boden mulchen und Triebe an Rankhilfen führen. In Schubphasen moderat nachdüngen.",
     ernte:
-      "Je nach Sorte ab Juni/Juli bis in den Spaetsommer. Fruechte regelmaessig schneiden, damit neue nachkommen.",
+      "Je nach Sorte ab Juni/Juli bis in den Spätsommer. Früchte regelmäßig schneiden, damit neue nachkommen.",
     hinweise:
-      "Kaelte und Staunaesse vermeiden. Rankkultur verbessert Luftzirkulation und reduziert Krankheitsdruck.",
+      "Kälte und Staunässe vermeiden. Rankkultur verbessert Luftzirkulation und reduziert Krankheitsdruck.",
   },
   timeline: [
     {
       type: "vorzucht",
-      label: "Vorzucht in Toepfen",
+      label: "Vorzucht in Töpfen",
       startMonth: 4,
       startDay: 1,
       endMonth: 5,
@@ -54,7 +54,7 @@ export const gurken: Plant = {
     },
     {
       type: "duengen",
-      label: "Erste Naehrstoffgabe nach Anwachsen",
+      label: "Erste Nährstoffgabe nach Anwachsen",
       startMonth: 6,
       startDay: 10,
       endMonth: 7,
@@ -63,7 +63,7 @@ export const gurken: Plant = {
     },
     {
       type: "duengen",
-      label: "Nachduengung in der Hauptphase",
+      label: "Nachdüngung in der Hauptphase",
       startMonth: 7,
       startDay: 11,
       endMonth: 8,

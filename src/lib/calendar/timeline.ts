@@ -1,4 +1,4 @@
-import type { Plant, PlantTimelineEntry, PlantTimelineType } from "@/data/plants";
+﻿import type { Plant, PlantTimelineEntry, PlantTimelineType } from "@/data/plants";
 
 export type CalendarMonth = {
   index: number;
@@ -37,7 +37,7 @@ export type CalendarRowData = {
 export const CALENDAR_MONTHS: CalendarMonth[] = [
   { index: 1, label: "Jan" },
   { index: 2, label: "Feb" },
-  { index: 3, label: "Maer" },
+  { index: 3, label: "Mär" },
   { index: 4, label: "Apr" },
   { index: 5, label: "Mai" },
   { index: 6, label: "Jun" },
@@ -68,7 +68,7 @@ export const CALENDAR_TRACKS: Array<{
   label: string;
 }> = [
   { key: "aussaat", label: "Vorzucht / Aussaat" },
-  { key: "duengen", label: "Duengen" },
+  { key: "duengen", label: "Düngen" },
   { key: "ernte", label: "Ernte" },
 ];
 
@@ -77,7 +77,7 @@ export const CALENDAR_LEGEND_ITEMS: CalendarLegendItem[] = [
     label: "Vorzucht / Aussaat",
     colors: [TIMELINE_TYPE_COLORS.vorzucht, TIMELINE_TYPE_COLORS.aussaat],
   },
-  { label: "Duengen", colors: [TIMELINE_TYPE_COLORS.duengen] },
+  { label: "Düngen", colors: [TIMELINE_TYPE_COLORS.duengen] },
   { label: "Ernte", colors: [TIMELINE_TYPE_COLORS.ernten] },
 ];
 
@@ -213,3 +213,4 @@ export function buildCalendarRows(plants: Plant[], year: number): CalendarRowDat
     };
   });
 }
+

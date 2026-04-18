@@ -5,24 +5,24 @@ export const tomaten: Plant = {
   slug: "tomaten",
   category: "fruchtgemuese",
   lifecycle: "einjaehrig",
-  summary: "Waermebeduerftige Starkzehrer mit langer Erntephase im Sommer und Herbst.",
+  summary: "Wärmebedürftige Starkzehrer mit langer Erntephase im Sommer und Herbst.",
   seo: {
-    title: "Tomaten | Gruenkalender",
+    title: "Tomaten | Grünkalender",
     description: "Tomaten im Garten: Hinweise zu Standort, Pflanzzeit, Pflege, Ernte und Zeitfenstern im Jahreslauf.",
   },
   content: {
     intro:
-      "Tomaten lieben einen warmen, sonnigen Platz und entwickeln bei gleichmaessiger Versorgung aromatische Fruechte ueber viele Wochen.",
+      "Tomaten lieben einen warmen, sonnigen Platz und entwickeln bei gleichmäßiger Versorgung aromatische Früchte über viele Wochen.",
     standort:
-      "Vollsonnig, windgeschuetzt und luftig. Der Boden sollte humos, naehrstoffreich und gleichmaessig feucht sein.",
+      "Vollsonnig, windgeschützt und luftig. Der Boden sollte humos, nährstoffreich und gleichmäßig feucht sein.",
     pflanzzeit:
-      "Vorzucht ab Februar bis April. Nach den letzten Spaetfroesten ab Mitte Mai ins Freiland pflanzen.",
+      "Vorzucht ab Februar bis April. Nach den letzten Spätfrösten ab Mitte Mai ins Freiland pflanzen.",
     pflege:
-      "Regelmaessig giessen, Triebe fuehren und bei Stabtomaten ausgeizen. Organisch nachduengen, sobald Fruchtansatz einsetzt.",
+      "Regelmäßig gießen, Triebe führen und bei Stabtomaten ausgeizen. Organisch nachdüngen, sobald Fruchtansatz einsetzt.",
     ernte:
-      "Je nach Sorte meist von Juli bis Oktober. Reif sind die Fruechte bei sortentypischer Farbe und leichtem Drucknachgeben.",
+      "Je nach Sorte meist von Juli bis Oktober. Reif sind die Früchte bei sortentypischer Farbe und leichtem Drucknachgeben.",
     hinweise:
-      "Blaetter moeglichst trocken halten und auf Luftzirkulation achten. Standortwechsel hilft gegen bodenbuertige Krankheiten.",
+      "Blätter möglichst trocken halten und auf Luftzirkulation achten. Standortwechsel hilft gegen bodenbürtige Krankheiten.",
   },
   timeline: [
     {
@@ -45,7 +45,7 @@ export const tomaten: Plant = {
     },
     {
       type: "duengen",
-      label: "Regelmaessig in der Wachstumsphase duengen",
+      label: "Regelmäßig in der Wachstumsphase düngen",
       startMonth: 6,
       startDay: 1,
       endMonth: 7,
@@ -54,7 +54,7 @@ export const tomaten: Plant = {
     },
     {
       type: "duengen",
-      label: "Nachduegen waehrend Fruchtansatz",
+      label: "Nachdüngen während Fruchtansatz",
       startMonth: 7,
       startDay: 16,
       endMonth: 8,

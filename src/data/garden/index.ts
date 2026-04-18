@@ -3,6 +3,7 @@ export type {
   GardenEvent,
   GardenEventBaseType,
   GardenEventType,
+  GardenStartType,
   GardenValueUnit,
   ISODateString,
 } from "./types";

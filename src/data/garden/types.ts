@@ -19,10 +19,13 @@ export type GardenValueUnit =
   | "ml"
   | (string & {});
 
+export type GardenStartType = "vorzucht" | "direktaussaat";
+
 export type GardenEntry = {
   id: string;
   plantSlug: string;
   year: number;
+  startType?: GardenStartType;
   amount?: string;
   place?: string;
   growingType?: string;

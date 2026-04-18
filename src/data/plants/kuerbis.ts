@@ -1,28 +1,28 @@
 import type { Plant } from "./types";
 
 export const kuerbis: Plant = {
-  name: "Kuerbis",
+  name: "Kürbis",
   slug: "kuerbis",
   category: "fruchtgemuese",
   lifecycle: "einjaehrig",
-  summary: "Wuchsfreudige Kultur mit grossem Platzbedarf und ertragreicher Herbsternte.",
+  summary: "Wuchsfreudige Kultur mit großem Platzbedarf und ertragreicher Herbsternte.",
   seo: {
-    title: "Kuerbis | Gruenkalender",
-    description: "Kuerbis im Garten: uebersichtliche Informationen zu Standort, Pflanzzeit, Pflege, Ernte und Zeitfenstern.",
+    title: "Kürbis | Grünkalender",
+    description: "Kürbis im Garten: übersichtliche Informationen zu Standort, Pflanzzeit, Pflege, Ernte und Zeitfenstern.",
   },
   content: {
     intro:
-      "Kuerbisse brauchen viel Raum und einen gut versorgten Boden, danken dies aber mit robustem Wuchs und lagerfaehigen Fruechten.",
+      "Kürbisse brauchen viel Raum und einen gut versorgten Boden, danken dies aber mit robustem Wuchs und lagerfähigen Früchten.",
     standort:
-      "Vollsonnig und warm. Tiefgruendiger, humoser Boden mit guter Wasserhaltefaehigkeit ist ideal.",
+      "Vollsonnig und warm. Tiefgründiger, humoser Boden mit guter Wasserhaltefähigkeit ist ideal.",
     pflanzzeit:
-      "Vorzucht ab April moeglich, Direktsaat ab Mai. Auspflanzen nach den Eisheiligen.",
+      "Vorzucht ab April möglich, Direktsaat ab Mai. Auspflanzen nach den Eisheiligen.",
     pflege:
-      "Gleichmaessig waessern, mulchen und Triebe bei Bedarf lenken. In der Hauptwachstumsphase organisch nachduengen.",
+      "Gleichmäßig wässern, mulchen und Triebe bei Bedarf lenken. In der Hauptwachstumsphase organisch nachdüngen.",
     ernte:
-      "Von Spaetsommer bis Herbst. Reife Fruechte haben eine feste Schale und einen trockenen, verholzenden Stiel.",
+      "Von Spätsommer bis Herbst. Reife Früchte haben eine feste Schale und einen trockenen, verholzenden Stiel.",
     hinweise:
-      "Grosszuegig Abstand einplanen. Fruechte trocken lagern und nur mit intakter Schale einlagern.",
+      "Großzügig Abstand einplanen. Früchte trocken lagern und nur mit intakter Schale einlagern.",
   },
   timeline: [
     {
@@ -54,7 +54,7 @@ export const kuerbis: Plant = {
     },
     {
       type: "duengen",
-      label: "Grundduengung zum Start",
+      label: "Grunddüngung zum Start",
       startMonth: 6,
       startDay: 1,
       endMonth: 7,
@@ -63,7 +63,7 @@ export const kuerbis: Plant = {
     },
     {
       type: "duengen",
-      label: "Nachduegen bei Fruchtansatz",
+      label: "Nachdüngen bei Fruchtansatz",
       startMonth: 7,
       startDay: 6,
       endMonth: 8,

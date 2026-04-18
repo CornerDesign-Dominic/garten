@@ -1,10 +1,17 @@
-import type { GardenEntry, GardenEvent, GardenEventType, GardenValueUnit } from "@/data/garden";
+import type {
+  GardenEntry,
+  GardenEvent,
+  GardenEventType,
+  GardenStartType,
+  GardenValueUnit,
+} from "@/data/garden";
 
 import type { GardenState, GardenStorage } from "./storage";
 
 type NewGardenEntryInput = {
   plantSlug: string;
   startDate: string;
+  startType?: GardenStartType;
   amount?: string;
   place?: string;
   growingType?: string;
@@ -80,6 +87,7 @@ export class GardenService {
       plantSlug: input.plantSlug,
       year: Number.isFinite(startYear) ? startYear : new Date().getFullYear(),
       startDate: input.startDate,
+      startType: input.startType,
       amount: input.amount,
       place: input.place,
       growingType: input.growingType,

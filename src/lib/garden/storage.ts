@@ -50,6 +50,7 @@ function normalizeEntry(rawEntry: GardenEntry): GardenEntry {
     plantSlug: rawEntry.plantSlug,
     year: rawEntry.year,
     startDate: rawEntry.startDate,
+    startType: rawEntry.startType,
     endDate: rawEntry.endDate,
     amount: legacyAmount,
     place: legacyPlace,

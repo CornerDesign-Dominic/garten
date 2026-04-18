@@ -1,28 +1,28 @@
 import type { Plant } from "./types";
 
 export const moehren: Plant = {
-  name: "Moehren",
+  name: "Möhren",
   slug: "moehren",
   category: "wurzelgemuese",
   lifecycle: "zweijaehrig",
-  summary: "Tiefwurzelnde Kultur fuer lockere Boeden mit fruehen und spaeten Erntefenstern.",
+  summary: "Tiefwurzelnde Kultur für lockere Böden mit frühen und späten Erntefenstern.",
   seo: {
-    title: "Moehren | Gruenkalender",
-    description: "Moehren im Garten: Standort, Saettermin, Pflege, Ernte und praktische Timeline-Daten.",
+    title: "Möhren | Grünkalender",
+    description: "Möhren im Garten: Standort, Saattermin, Pflege, Ernte und praktische Timeline-Daten.",
   },
   content: {
     intro:
-      "Moehren profitieren von tief gelockerten, steinarmen Beeten und entwickeln dort gleichmaessige, aromatische Wurzeln.",
+      "Möhren profitieren von tief gelockerten, steinarmen Beeten und entwickeln dort gleichmäßige, aromatische Wurzeln.",
     standort:
-      "Sonnig mit tiefgruendigem, lockeren Boden. Verdichtungen und frischer Mist sollten vermieden werden.",
+      "Sonnig mit tiefgründigem, lockeren Boden. Verdichtungen und frischer Mist sollten vermieden werden.",
     pflanzzeit:
-      "Direktsaat von Maerz bis Juli. Fruehe und spaete Sorten ermoeglichen gestaffelte Ernte.",
+      "Direktsaat von März bis Juli. Frühe und späte Sorten ermöglichen gestaffelte Ernte.",
     pflege:
-      "Gleichmaessig feucht halten, rechtzeitig vereinzeln und die Reihen regelmaessig lockern.",
+      "Gleichmäßig feucht halten, rechtzeitig vereinzeln und die Reihen regelmäßig lockern.",
     ernte:
-      "Fruehe Moehren ab Sommer, spaete Sorten bis in den Herbst hinein und teilweise zur Einlagerung geeignet.",
+      "Frühe Möhren ab Sommer, späte Sorten bis in den Herbst hinein und teilweise zur Einlagerung geeignet.",
     hinweise:
-      "Mischkultur mit Zwiebeln kann Schaedlinge reduzieren. Fruchtfolge von mindestens drei Jahren einhalten.",
+      "Mischkultur mit Zwiebeln kann Schädlinge reduzieren. Fruchtfolge von mindestens drei Jahren einhalten.",
   },
   timeline: [
     {
@@ -45,7 +45,7 @@ export const moehren: Plant = {
     },
     {
       type: "ernten",
-      label: "Bundmoehren ernten",
+      label: "Bundmöhren ernten",
       startMonth: 6,
       startDay: 20,
       endMonth: 8,

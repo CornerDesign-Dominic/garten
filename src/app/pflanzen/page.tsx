@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { PageShell } from "@/components/layout/PageShell";
 import { plants } from "@/data/plants";
@@ -6,32 +6,29 @@ import { plants } from "@/data/plants";
 export default function PflanzenOverviewPage() {
   return (
     <PageShell>
-      <section className="max-w-3xl space-y-5 py-8 md:py-12">
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 md:text-4xl">
-          Pflanzen
-        </h1>
-        <p className="text-base leading-8 text-zinc-600 md:text-lg">
-          Dieser Bereich sammelt kompakte Pflanzenprofile fuer den Gartenalltag.
+      <section className="ui-page-head">
+        <h1 className="ui-page-title">Pflanzen</h1>
+        <p className="ui-page-intro">
+          Dieser Bereich sammelt kompakte Pflanzenprofile für den Gartenalltag.
           Jede Unterseite bietet eine ruhige, schnell erfassbare Basis zu
           Standort, Pflanzzeit, Pflege und Ernte.
         </p>
       </section>
 
-      <section className="grid gap-5 pb-10 md:grid-cols-2 md:pb-14 lg:grid-cols-3">
+      <section className="grid grid-cols-2 gap-4 pb-10 md:grid-cols-3 md:gap-5 md:pb-14 lg:grid-cols-5">
         {plants.map((plant) => (
-          <article
+          <Link
             key={plant.slug}
-            className="rounded-2xl border border-emerald-900/10 bg-white/65 p-6"
+            href={`/pflanzen/${plant.slug}`}
+            className="ui-card-interactive ui-focus p-4 focus-visible:ring-offset-[var(--paper)] md:p-5"
           >
-            <h2 className="text-xl font-semibold text-zinc-900">{plant.name}</h2>
-            <p className="mt-3 text-sm leading-7 text-zinc-600">{plant.summary}</p>
-            <Link
-              href={`/pflanzen/${plant.slug}`}
-              className="mt-5 inline-flex text-sm font-semibold text-emerald-800 transition-colors hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
-            >
-              Zur Pflanzen-Seite
-            </Link>
-          </article>
+            <h2 className="text-lg font-semibold text-[var(--ink-strong)] md:text-xl">
+              {plant.name}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">
+              {plant.summary}
+            </p>
+          </Link>
         ))}
       </section>
     </PageShell>

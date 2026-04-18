@@ -7,27 +7,27 @@ export const radieschen: Plant = {
   lifecycle: "einjaehrig",
   summary: "Schnelle Zwischenkultur mit kurzen Entwicklungszeiten und mehreren Saatfenstern.",
   seo: {
-    title: "Radieschen | Gruenkalender",
-    description: "Radieschen im Garten: Standort, Aussaat, Pflege, Ernte und typische Zeitfenster uebersichtlich erklaert.",
+    title: "Radieschen | Grünkalender",
+    description: "Radieschen im Garten: Standort, Aussaat, Pflege, Ernte und typische Zeitfenster übersichtlich erklärt.",
   },
   content: {
     intro:
-      "Radieschen sind unkompliziert und eignen sich hervorragend fuer fortlaufende Saetze im Fruehjahr und Spaetsommer.",
+      "Radieschen sind unkompliziert und eignen sich hervorragend für fortlaufende Sätze im Frühjahr und Spätsommer.",
     standort:
-      "Sonnig bis halbschattig. Lockerer, steinfreier Boden foerdert gleichmaessige Knollenbildung.",
+      "Sonnig bis halbschattig. Lockerer, steinfreier Boden fördert gleichmäßige Knollenbildung.",
     pflanzzeit:
-      "Direktsaat von Maerz bis September in kurzen Abstaenden fuer fortlaufende Ernte.",
+      "Direktsaat von März bis September in kurzen Abständen für fortlaufende Ernte.",
     pflege:
-      "Konstant feucht halten, nicht zu dicht stehen lassen und regelmaessig hacken.",
+      "Konstant feucht halten, nicht zu dicht stehen lassen und regelmäßig hacken.",
     ernte:
-      "Je nach Witterung nach 4 bis 8 Wochen. Fruehzeitig ernten, bevor die Knollen holzig werden.",
+      "Je nach Witterung nach 4 bis 8 Wochen. Frühzeitig ernten, bevor die Knollen holzig werden.",
     hinweise:
-      "An sehr heissen Standorten schiessen Pflanzen schneller. Besser in kuehleren Zeitfenstern planen.",
+      "An sehr heißen Standorten schießen Pflanzen schneller. Besser in kühleren Zeitfenstern planen.",
   },
   timeline: [
     {
       type: "direktsaat",
-      label: "Fruehjahrsaussaat",
+      label: "Frühjahrsaussaat",
       startMonth: 3,
       startDay: 1,
       endMonth: 5,
@@ -36,7 +36,7 @@ export const radieschen: Plant = {
     },
     {
       type: "direktsaat",
-      label: "Spaetsommeraussaat",
+      label: "Spätsommeraussaat",
       startMonth: 8,
       startDay: 15,
       endMonth: 9,
@@ -45,7 +45,7 @@ export const radieschen: Plant = {
     },
     {
       type: "duengen",
-      label: "Zurueckhaltende Grundversorgung",
+      label: "Zurückhaltende Grundversorgung",
       startMonth: 3,
       startDay: 1,
       endMonth: 3,
@@ -54,7 +54,7 @@ export const radieschen: Plant = {
     },
     {
       type: "ernten",
-      label: "Ernte aus Fruehjahrsaat",
+      label: "Ernte aus Frühjahrssaat",
       startMonth: 4,
       startDay: 1,
       endMonth: 7,
@@ -63,7 +63,7 @@ export const radieschen: Plant = {
     },
     {
       type: "ernten",
-      label: "Ernte aus Spaetsommeraussaat",
+      label: "Ernte aus Spätsommeraussaat",
       startMonth: 9,
       startDay: 10,
       endMonth: 10,

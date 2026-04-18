@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# Grünkalender
 
-## Getting Started
+## Kurzbeschreibung
+Grünkalender ist eine Next.js/TypeScript-Webanwendung für Gartenplanung. Das Projekt kombiniert strukturierte Pflanzen-Informationsseiten, einen allgemeinen Jahreskalender für Pflanzenphasen und einen persönlichen Bereich „Mein Garten“.
 
-First, run the development server:
+## Ziel des Projekts
+Ziel ist eine langfristig ausbaubare Garten-Plattform mit klarer Trennung zwischen:
+- zentralen, allgemeinen Pflanzendaten
+- persönlicher Nutzerverwaltung im Bereich „Mein Garten“
+- UI-Texten und inhaltlichen Daten
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Aktueller Funktionsstand
+- Visuelles Basislayout mit fixiertem Header/Footer und zentralem „Papier“-Inhaltsbereich
+- Pflanzenbereich mit Übersichtsseite und SEO-fähigen Detailseiten
+- Zentrale Pflanzendaten in modularer Struktur (jede Pflanze eigene Datei)
+- Kalenderansicht (`/der-kalender`) als allgemeine Pflanzen-Timeline
+- Persönlicher Bereich „Mein Garten“ (`/mein-garten`) inkl. Einträgen, Detailseiten und Event-Erfassung
+- UI-Texte für Gartenbereiche zentralisiert unter `src/content/ui/de.ts`
+
+## Wichtige Bereiche der Website
+- `/`
+  - Startseite mit Projektüberblick
+- `/pflanzen`
+  - Übersicht der Pflanzen
+- `/pflanzen/[slug]`
+  - Pflanzen-Detailseiten (z. B. Tomaten, Gurken, Kürbis, Feldsalat, Radieschen, Möhren)
+- `/der-kalender`
+  - Allgemeiner Pflanzenkalender auf Basis zentraler Pflanzendaten
+- `/mein-garten`
+  - Persönlicher Gartenbereich für eigene Einträge
+- `/mein-garten/[entryId]`
+  - Detail-/Tagebuchseite pro Garteneintrag
+
+## Projektstruktur
+```text
+src/
+  app/                     # Routen und Seiten (App Router)
+  components/              # UI-Komponenten (u. a. layout, calendar, garden)
+  config/                  # Konfigurationen (z. B. Navigation)
+  content/
+    ui/
+      de.ts                # Zentrale deutsche UI-Texte
+  data/
+    plants/                # Zentrale Pflanzendaten (pro Pflanze eine Datei)
+    garden/                # Typen und (optionale) Mock-Strukturen für Mein Garten
+  lib/
+    calendar/              # Hilfslogik für Kalenderdarstellung
+    garden/                # Service-, Storage- und View-Model-Logik für Mein Garten
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Datenstruktur / Architektur
+### Pflanzen (`src/data/plants`)
+- Zentrale fachliche Datenquelle für Pflanzen
+- Jede Pflanze in eigener Datei (`tomaten.ts`, `gurken.ts`, ...)
+- Enthält Stammdaten, SEO-Daten, Inhaltsabschnitte und Timeline-Einträge
+- `index.ts` bündelt Exporte und Lookup-Strukturen
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Kalender (`/der-kalender`)
+- Nutzt ausschließlich zentrale Pflanzendaten
+- Zeigt allgemeine Zeitfenster (kein persönlicher Nutzerkalender)
+- Mehrere Timeline-Einträge pro Pflanze werden unterstützt
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Mein Garten (`/mein-garten`)
+- Speichert nur nutzerbezogene Daten (Einträge + Events)
+- Verknüpft Pflanzen über `plantSlug` mit dem zentralen Pflanzenkatalog
+- Zugriff über Service-/Storage-Schicht in `src/lib/garden`
 
-## Learn More
+### Trennungsprinzipien
+- **Aktuell keine Verbindung** zwischen allgemeinem Kalender und „Mein Garten“
+- Pflanzen-Content bleibt in `src/data/plants`
+- UI-Texte bleiben separat in `src/content/ui`
 
-To learn more about Next.js, take a look at the following resources:
+## Lokale Entwicklung
+Voraussetzungen:
+- Node.js 20+
+- npm
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Installieren:
+```bash
+npm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Entwicklung starten:
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+Build prüfen:
+```bash
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Lint prüfen:
+```bash
+npm run lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Aktueller Speicherstand
+- „Mein Garten“ verwendet derzeit **localStorage** im Browser
+- Storage-Zugriffe sind über `src/lib/garden/storage.ts` gekapselt
+- Dadurch ist später eine Umstellung auf einen anderen Speicher (z. B. Firestore) einfacher möglich
+
+## Nächste sinnvolle Ausbaustufen
+1. Austauschbare Persistenzschicht (z. B. Firestore) hinter bestehender Service-Schnittstelle
+2. Validierung und Fehlermeldungen für Formularflüsse in „Mein Garten“
+3. Erweiterung des Pflanzenkatalogs um weitere Arten
+4. Feingranulare Kalenderansichten (z. B. Wochen-/Tagesbezug)
+5. Optionale spätere Verknüpfung von „Mein Garten“ und Kalender (aktuell bewusst getrennt)
+

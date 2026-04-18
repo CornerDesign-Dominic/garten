@@ -12,8 +12,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Gruenkalender",
-  description: "Planung und Struktur fuer deinen Gartenalltag.",
+  title: "Grünkalender",
+  description: "Planung und Struktur für deinen Gartenalltag.",
 };
 
 export default function RootLayout({

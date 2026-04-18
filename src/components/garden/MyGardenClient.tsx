@@ -1,8 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { uiDe } from "@/content/ui/de";
+import type { GardenStartType } from "@/data/garden";
 import {
   GardenService,
   buildGardenYearGroups,
@@ -22,14 +24,18 @@ type MyGardenClientProps = {
 
 type EntryFormState = {
   plantSlug: string;
+  startType: GardenStartType;
   startDate: string;
   place: string;
   growingType: string;
-  sunExposure: string;
   reference: string;
   amount: string;
-  endDate: string;
 };
+
+const PLACE_OPTIONS = uiDe.garden.overview.options.place;
+const GROWING_TYPE_OPTIONS = uiDe.garden.overview.options.growingType;
+const T = uiDe.garden.overview;
+const C = uiDe.common;
 
 function getTodayISODate() {
   return new Date().toISOString().slice(0, 10);
@@ -38,13 +44,12 @@ function getTodayISODate() {
 function createInitialEntryForm(defaultPlantSlug: string): EntryFormState {
   return {
     plantSlug: defaultPlantSlug,
+    startType: "vorzucht",
     startDate: getTodayISODate(),
     place: "",
     growingType: "",
-    sunExposure: "",
     reference: "",
     amount: "",
-    endDate: "",
   };
 }
 
@@ -65,10 +70,7 @@ export function MyGardenClient({
   plantOptions,
   initialPlantSlug,
 }: MyGardenClientProps) {
-  const service = useMemo(
-    () => new GardenService(createLocalGardenStorage()),
-    [],
-  );
+  const service = useMemo(() => new GardenService(createLocalGardenStorage()), []);
 
   const plantNameBySlug = useMemo(
     () => Object.fromEntries(plantOptions.map((plant) => [plant.slug, plant.name])),
@@ -111,11 +113,10 @@ export function MyGardenClient({
     setGardenState((current) =>
       service.addEntry(current, {
         plantSlug: entryForm.plantSlug,
+        startType: entryForm.startType,
         startDate: entryForm.startDate,
-        endDate: toOptionalText(entryForm.endDate),
         place: toOptionalText(entryForm.place),
         growingType: toOptionalText(entryForm.growingType),
-        sunExposure: toOptionalText(entryForm.sunExposure),
         reference: toOptionalText(entryForm.reference),
         amount: toOptionalText(entryForm.amount),
       }),
@@ -127,24 +128,18 @@ export function MyGardenClient({
 
   return (
     <div className="space-y-7 pb-8">
-      <section className="max-w-3xl space-y-5 py-8 md:py-10">
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 md:text-4xl">
-          Mein Garten
-        </h1>
-        <p className="text-base leading-8 text-zinc-600 md:text-lg">
-          Halte deine laufenden Kulturen in einer ruhigen Uebersicht fest. Jeder
-          Eintrag fuehrt in eine eigene Historie, in der du deinen Verlauf
-          fortlaufend dokumentierst.
-        </p>
+      <section className="ui-page-head">
+        <h1 className="ui-page-title">{T.title}</h1>
+        <p className="ui-page-intro">{T.intro}</p>
       </section>
 
-      <section className="rounded-2xl border border-emerald-900/10 bg-white/60 p-4 md:p-5">
+      <section className="ui-surface p-4 md:p-5">
         <button
           type="button"
           onClick={() => setIsAddOpen((current) => !current)}
-          className="flex w-full items-center justify-between rounded-xl border border-emerald-900/10 bg-white/70 px-4 py-3 text-left text-sm font-semibold text-zinc-800 transition-colors hover:bg-white"
+          className="ui-focus flex w-full items-center justify-between rounded-xl border border-[var(--line-soft)] bg-white/80 px-4 py-3 text-left text-sm font-semibold text-[var(--ink-strong)] transition-colors hover:border-[var(--line-strong)] hover:bg-white focus-visible:ring-offset-[var(--paper)]"
         >
-          <span>Etwas meinem Garten hinzufuegen</span>
+          <span>{T.addEntryToggle}</span>
           <span className="text-lg leading-none text-emerald-700">
             {isAddOpen ? "−" : "+"}
           </span>
@@ -156,15 +151,13 @@ export function MyGardenClient({
             onSubmit={handleEntrySubmit}
           >
             <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Pflanze
-              </span>
+              <span className="ui-label">{T.form.plant}</span>
               <select
                 value={entryForm.plantSlug}
                 onChange={(e) =>
                   setEntryForm((current) => ({ ...current, plantSlug: e.target.value }))
                 }
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
+                className="ui-input"
                 required
               >
                 {plantOptions.map((plant) => (
@@ -176,41 +169,56 @@ export function MyGardenClient({
             </label>
 
             <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Startdatum
-              </span>
+              <span className="ui-label">{T.form.startDate}</span>
               <input
                 type="date"
                 value={entryForm.startDate}
                 onChange={(e) =>
                   setEntryForm((current) => ({ ...current, startDate: e.target.value }))
                 }
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
+                className="ui-input"
                 required
               />
             </label>
 
             <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Ort
-              </span>
-              <input
-                type="text"
+              <span className="ui-label">{T.form.startType}</span>
+              <select
+                value={entryForm.startType}
+                onChange={(e) =>
+                  setEntryForm((current) => ({
+                    ...current,
+                    startType: e.target.value as GardenStartType,
+                  }))
+                }
+                className="ui-input"
+              >
+                <option value="vorzucht">{uiDe.garden.startType.vorzucht}</option>
+                <option value="direktaussaat">{uiDe.garden.startType.direktaussaat}</option>
+              </select>
+            </label>
+
+            <label className="space-y-1.5">
+              <span className="ui-label">{T.form.place}</span>
+              <select
                 value={entryForm.place}
                 onChange={(e) =>
                   setEntryForm((current) => ({ ...current, place: e.target.value }))
                 }
-                placeholder="Balkon, Garten, Gewaechshaus"
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
-              />
+                className="ui-input"
+              >
+                <option value="">{T.form.choosePlease}</option>
+                {PLACE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Art / Gefaess / Anbauform
-              </span>
-              <input
-                type="text"
+              <span className="ui-label">{T.form.vesselType}</span>
+              <select
                 value={entryForm.growingType}
                 onChange={(e) =>
                   setEntryForm((current) => ({
@@ -218,79 +226,49 @@ export function MyGardenClient({
                     growingType: e.target.value,
                   }))
                 }
-                placeholder="Kuebel, Beet, Erde"
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
-              />
+                className="ui-input"
+              >
+                <option value="">{T.form.choosePlease}</option>
+                {GROWING_TYPE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Standort
-              </span>
-              <input
-                type="text"
-                value={entryForm.sunExposure}
-                onChange={(e) =>
-                  setEntryForm((current) => ({
-                    ...current,
-                    sunExposure: e.target.value,
-                  }))
-                }
-                placeholder="Schatten, Halbschatten, Sonne"
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
-              />
-            </label>
-
-            <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Menge
-              </span>
+              <span className="ui-label">{T.form.amount}</span>
               <input
                 type="text"
                 value={entryForm.amount}
                 onChange={(e) =>
                   setEntryForm((current) => ({ ...current, amount: e.target.value }))
                 }
-                placeholder="z. B. 4 Stueck, 2 Reihen"
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
+                placeholder={T.form.amountPlaceholder}
+                className="ui-input"
               />
             </label>
 
             <label className="space-y-1.5 md:col-span-2">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Notiz / Referenz
-              </span>
+              <span className="ui-label">{T.form.reference}</span>
               <input
                 type="text"
                 value={entryForm.reference}
                 onChange={(e) =>
                   setEntryForm((current) => ({ ...current, reference: e.target.value }))
                 }
-                placeholder="Beet 3, Kuebel 5, Reihe 8"
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
-              />
-            </label>
-
-            <label className="space-y-1.5 md:col-span-2">
-              <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Enddatum (optional)
-              </span>
-              <input
-                type="date"
-                value={entryForm.endDate}
-                onChange={(e) =>
-                  setEntryForm((current) => ({ ...current, endDate: e.target.value }))
-                }
-                className="w-full rounded-lg border border-emerald-900/15 bg-white px-3 py-2 text-sm text-zinc-800 outline-none ring-emerald-700/30 focus:ring-2"
+                placeholder={T.form.referencePlaceholder}
+                className="ui-input"
               />
             </label>
 
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800"
+                className="rounded-lg border border-emerald-800/20 bg-emerald-700/92 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
               >
-                Eintrag speichern
+                {T.saveEntry}
               </button>
             </div>
           </form>
@@ -298,15 +276,16 @@ export function MyGardenClient({
       </section>
 
       {yearGroups.length === 0 ? (
-        <section className="rounded-2xl border border-emerald-900/10 bg-white/60 p-5 text-sm text-zinc-600">
-          Noch keine Eintraege vorhanden. Erstelle oben deinen ersten
-          Garten-Eintrag.
+        <section className="ui-surface p-5 text-sm text-[var(--ink-soft)]">
+          {T.empty}
         </section>
       ) : (
         <section className="space-y-7">
           {yearGroups.map((group) => (
             <div key={group.year} className="space-y-3">
-              <h2 className="text-lg font-semibold text-zinc-900">Jahr {group.year}</h2>
+              <h2 className="text-lg font-semibold text-[var(--ink-strong)]">
+                {T.yearLabel} {group.year}
+              </h2>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {group.cards.map((card) => {
@@ -316,42 +295,44 @@ export function MyGardenClient({
                     <Link
                       key={`${group.year}-${entry.id}`}
                       href={`/mein-garten/${entry.id}`}
-                      className={`block rounded-2xl border p-4 transition-colors hover:border-emerald-700/35 ${
+                      className={`ui-focus block rounded-2xl p-4 transition-all duration-200 ${
                         card.isCompleted
-                          ? "border-zinc-300/70 bg-zinc-100/70"
-                          : "border-emerald-900/10 bg-white/70"
+                          ? "ui-card-muted hover:border-zinc-400/50"
+                          : "ui-card-interactive"
                       }`}
                     >
                       <div className="mb-3 flex items-center justify-between gap-2">
-                        <h3 className="text-base font-semibold text-zinc-900">
+                        <h3 className="text-base font-semibold text-[var(--ink-strong)]">
                           {plantNameBySlug[entry.plantSlug] ?? entry.plantSlug}
                         </h3>
-                        <p className="text-xs font-medium text-zinc-500">
-                          Start: {formatDate(entry.startDate)}
+                        <p className="ui-meta">
+                          {T.card.start}: {formatDate(entry.startDate)}
                         </p>
                       </div>
 
                       <dl className="space-y-1.5 text-sm">
                         <div className="flex items-start justify-between gap-3">
-                          <dt className="text-zinc-500">Referenz</dt>
-                          <dd className="text-right text-zinc-700">
-                            {entry.reference ?? "–"}
+                          <dt className="text-[var(--ink-soft)]">{T.card.reference}</dt>
+                          <dd className="text-right text-[var(--ink)]">
+                            {entry.reference ?? C.notAvailable}
                           </dd>
                         </div>
                         <div className="flex items-start justify-between gap-3">
-                          <dt className="text-zinc-500">Menge</dt>
-                          <dd className="text-right text-zinc-700">{entry.amount ?? "–"}</dd>
+                          <dt className="text-[var(--ink-soft)]">{T.card.amount}</dt>
+                          <dd className="text-right text-[var(--ink)]">
+                            {entry.amount ?? C.notAvailable}
+                          </dd>
                         </div>
                         {entry.place && (
                           <div className="flex items-start justify-between gap-3">
-                            <dt className="text-zinc-500">Ort</dt>
-                            <dd className="text-right text-zinc-700">{entry.place}</dd>
+                            <dt className="text-[var(--ink-soft)]">{T.card.place}</dt>
+                            <dd className="text-right text-[var(--ink)]">{entry.place}</dd>
                           </div>
                         )}
                         {entry.endDate && (
                           <div className="flex items-start justify-between gap-3">
-                            <dt className="text-zinc-500">Ende</dt>
-                            <dd className="text-right text-zinc-700">
+                            <dt className="text-[var(--ink-soft)]">{T.card.end}</dt>
+                            <dd className="text-right text-[var(--ink)]">
                               {formatDate(entry.endDate)}
                             </dd>
                           </div>

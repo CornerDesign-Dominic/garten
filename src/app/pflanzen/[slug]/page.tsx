@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -29,7 +29,7 @@ export async function generateMetadata({
 
   if (!plant) {
     return {
-      title: "Pflanze nicht gefunden | Gruenkalender",
+      title: "Pflanze nicht gefunden | Grünkalender",
     };
   }
 
@@ -49,31 +49,26 @@ export default async function PlantDetailPage({ params }: PlantPageProps) {
 
   return (
     <PageShell>
-      <section className="max-w-3xl space-y-5 py-8 md:py-12">
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 md:text-4xl">
-          {plant.name}
-        </h1>
-        <p className="text-base leading-8 text-zinc-600 md:text-lg">
-          {plant.content.intro}
-        </p>
+      <section className="ui-page-head">
+        <h1 className="ui-page-title">{plant.name}</h1>
+        <p className="ui-page-intro">{plant.content.intro}</p>
         <div>
           <Link
             href={`/mein-garten?plant=${plant.slug}`}
-            className="inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800"
+            className="ui-focus inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 focus-visible:ring-offset-[var(--paper)]"
           >
-            Meinem Garten hinzufuegen
+            Meinem Garten hinzufügen
           </Link>
         </div>
       </section>
 
       <section className="grid gap-5 pb-10 md:grid-cols-2 md:pb-14">
         {sectionMeta.map((section) => (
-          <article
-            key={section.key}
-            className="rounded-2xl border border-emerald-900/10 bg-white/60 p-6"
-          >
-            <h2 className="text-xl font-semibold text-zinc-900">{section.label}</h2>
-            <p className="mt-3 text-sm leading-7 text-zinc-600">
+          <article key={section.key} className="ui-card p-6">
+            <h2 className="text-xl font-semibold text-[var(--ink-strong)]">
+              {section.label}
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
               {plant.content[section.key]}
             </p>
           </article>

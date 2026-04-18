@@ -5,29 +5,29 @@ export const feldsalat: Plant = {
   slug: "feldsalat",
   category: "blattgemuese",
   lifecycle: "einjaehrig",
-  summary: "Robuste Kultur fuer kuehlere Monate mit frischer Ernte bis in den Winter.",
+  summary: "Robuste Kultur für kühlere Monate mit frischer Ernte bis in den Winter.",
   seo: {
-    title: "Feldsalat | Gruenkalender",
+    title: "Feldsalat | Grünkalender",
     description: "Feldsalat im Garten: kompakte Hinweise zu Standort, Aussaat, Pflege, Ernte und saisonalen Fenstern.",
   },
   content: {
     intro:
-      "Feldsalat ist pflegeleicht und eine wertvolle Kultur fuer Herbst und Winter, wenn viele Beete bereits abgeerntet sind.",
+      "Feldsalat ist pflegeleicht und eine wertvolle Kultur für Herbst und Winter, wenn viele Beete bereits abgeerntet sind.",
     standort:
-      "Sonnig bis halbschattig. Feinkruemeliger, lockerer Boden erleichtert eine gleichmaessige Entwicklung.",
+      "Sonnig bis halbschattig. Feinkrümeliger, lockerer Boden erleichtert eine gleichmäßige Entwicklung.",
     pflanzzeit:
-      "Direktsaat meist von Juli bis September, in milden Regionen auch mit spaeten Saetzen moeglich.",
+      "Direktsaat meist von Juli bis September, in milden Regionen auch mit späten Sätzen möglich.",
     pflege:
-      "Reihen unkrautfrei halten, maessig giessen und bei dichter Saat fruehzeitig vereinzeln.",
+      "Reihen unkrautfrei halten, mäßig gießen und bei dichter Saat frühzeitig vereinzeln.",
     ernte:
       "Je nach Aussaat ab September bis in den Februar. Rosetten bodennah schneiden.",
     hinweise:
-      "Mit Vlies lassen sich spaete Saetze besser absichern. Staunaesse in kalten Phasen vermeiden.",
+      "Mit Vlies lassen sich späte Sätze besser absichern. Staunässe in kalten Phasen vermeiden.",
   },
   timeline: [
     {
       type: "direktsaat",
-      label: "Fruehe Herbstaussaat",
+      label: "Frühe Herbstaussaat",
       startMonth: 7,
       startDay: 15,
       endMonth: 8,
@@ -36,7 +36,7 @@ export const feldsalat: Plant = {
     },
     {
       type: "direktsaat",
-      label: "Spaete Aussaat fuer Winterernte",
+      label: "Späte Aussaat für Winterernte",
       startMonth: 9,
       startDay: 1,
       endMonth: 10,
@@ -45,7 +45,7 @@ export const feldsalat: Plant = {
     },
     {
       type: "duengen",
-      label: "Leichte Grundduengung",
+      label: "Leichte Grunddüngung",
       startMonth: 7,
       startDay: 20,
       endMonth: 8,

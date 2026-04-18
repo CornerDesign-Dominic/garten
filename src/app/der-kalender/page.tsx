@@ -1,4 +1,4 @@
-import { PageShell } from "@/components/layout/PageShell";
+﻿import { PageShell } from "@/components/layout/PageShell";
 import { CalendarTimeline } from "@/components/calendar/CalendarTimeline";
 import { plants } from "@/data/plants";
 
@@ -14,7 +14,7 @@ export default function DerKalenderPage() {
         <p className="text-base leading-8 text-zinc-600 md:text-lg">
           Diese erste Jahresansicht zeigt die Zeitfenster aus den zentralen
           Pflanzendaten auf einer horizontalen Timeline. Mehrere Phasen pro
-          Pflanze und wiederholte Zeitraeume sind bereits unterstuetzt.
+          Pflanze und wiederholte Zeiträume sind bereits unterstützt.
         </p>
       </section>
 
@@ -22,3 +22,4 @@ export default function DerKalenderPage() {
     </PageShell>
   );
 }
+
