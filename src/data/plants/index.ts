@@ -9,6 +9,7 @@ import type { Plant } from "./types";
 export type {
   Plant,
   PlantCategory,
+  PlantLifecycle,
   PlantContentData,
   PlantSeoData,
   PlantTimelineBaseType,

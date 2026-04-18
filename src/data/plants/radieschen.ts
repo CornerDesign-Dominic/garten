@@ -4,6 +4,7 @@ export const radieschen: Plant = {
   name: "Radieschen",
   slug: "radieschen",
   category: "wurzelgemuese",
+  lifecycle: "einjaehrig",
   summary: "Schnelle Zwischenkultur mit kurzen Entwicklungszeiten und mehreren Saatfenstern.",
   seo: {
     title: "Radieschen | Gruenkalender",

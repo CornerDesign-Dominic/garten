@@ -4,6 +4,7 @@ export const feldsalat: Plant = {
   name: "Feldsalat",
   slug: "feldsalat",
   category: "blattgemuese",
+  lifecycle: "einjaehrig",
   summary: "Robuste Kultur fuer kuehlere Monate mit frischer Ernte bis in den Winter.",
   seo: {
     title: "Feldsalat | Gruenkalender",

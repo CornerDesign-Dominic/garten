@@ -4,6 +4,7 @@ export const tomaten: Plant = {
   name: "Tomaten",
   slug: "tomaten",
   category: "fruchtgemuese",
+  lifecycle: "einjaehrig",
   summary: "Waermebeduerftige Starkzehrer mit langer Erntephase im Sommer und Herbst.",
   seo: {
     title: "Tomaten | Gruenkalender",

@@ -4,6 +4,7 @@ export const kuerbis: Plant = {
   name: "Kuerbis",
   slug: "kuerbis",
   category: "fruchtgemuese",
+  lifecycle: "einjaehrig",
   summary: "Wuchsfreudige Kultur mit grossem Platzbedarf und ertragreicher Herbsternte.",
   seo: {
     title: "Kuerbis | Gruenkalender",

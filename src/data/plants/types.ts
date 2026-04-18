@@ -4,6 +4,12 @@ export type PlantCategory =
   | "wurzelgemuese"
   | (string & {});
 
+export type PlantLifecycle =
+  | "einjaehrig"
+  | "zweijaehrig"
+  | "mehrjaehrig"
+  | (string & {});
+
 export type PlantTimelineBaseType =
   | "vorzucht"
   | "direktsaat"
@@ -80,6 +86,7 @@ export type Plant = {
   name: string;
   slug: string;
   category: PlantCategory;
+  lifecycle: PlantLifecycle;
   summary: string;
   seo: PlantSeoData;
   content: PlantContentData;

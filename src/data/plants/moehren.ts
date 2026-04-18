@@ -4,6 +4,7 @@ export const moehren: Plant = {
   name: "Moehren",
   slug: "moehren",
   category: "wurzelgemuese",
+  lifecycle: "zweijaehrig",
   summary: "Tiefwurzelnde Kultur fuer lockere Boeden mit fruehen und spaeten Erntefenstern.",
   seo: {
     title: "Moehren | Gruenkalender",

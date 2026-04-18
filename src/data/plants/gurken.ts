@@ -4,6 +4,7 @@ export const gurken: Plant = {
   name: "Gurken",
   slug: "gurken",
   category: "fruchtgemuese",
+  lifecycle: "einjaehrig",
   summary: "Schnellwachsende Waermekultur mit laufender Ernte bei konstanter Wasserversorgung.",
   seo: {
     title: "Gurken | Gruenkalender",
