@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { uiDe } from "@/content/ui/de";
-import type { GardenEvent, GardenStartType, GardenValueUnit } from "@/data/garden";
+import type { GardenEvent, GardenStartType } from "@/data/garden";
 import {
   GardenService,
   createLocalGardenStorage,
   getEventsForGardenEntry,
+  getHarvestYears,
+  sumHarvestForYear,
+  toHarvestEntries,
 } from "@/lib/garden";
 import type { GardenState } from "@/lib/garden";
 
@@ -39,11 +42,9 @@ type FertilizerFormState = {
 };
 
 type HarvestFormState = {
-  type: "erste_ernte" | "letzte_ernte";
   date: string;
-  value: string;
-  unit: GardenValueUnit | "";
-  note: string;
+  quantity: string;
+  weightGrams: string;
 };
 
 type NoteFormState = {
@@ -53,14 +54,6 @@ type NoteFormState = {
 
 const T = uiDe.garden.detail;
 const C = uiDe.common;
-const UNIT_OPTIONS: Array<{ value: GardenValueUnit; label: string }> = [
-  { value: "kg", label: "kg" },
-  { value: "g", label: "g" },
-  { value: "stueck", label: "Stück" },
-  { value: "l", label: "l" },
-  { value: "ml", label: "ml" },
-];
-
 function getTodayISODate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -87,19 +80,16 @@ function toOptionalNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-function unitLabel(unit?: string) {
-  if (!unit) {
-    return "";
+function formatShortDate(date: string) {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) {
+    return date;
   }
-  const found = UNIT_OPTIONS.find((option) => option.value === unit);
-  return found?.label ?? unit;
-}
-
-function formatValueWithUnit(value?: number, unit?: string) {
-  if (value === undefined) {
-    return "";
-  }
-  return `${value}${unit ? ` ${unitLabel(unit)}` : ""}`;
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  }).format(parsed);
 }
 
 function sortEventsByDateAsc(events: GardenEvent[]) {
@@ -157,48 +147,30 @@ export function GardenEntryDetailClient({
     note: "",
   });
   const [harvestForm, setHarvestForm] = useState<HarvestFormState>({
-    type: "erste_ernte",
     date: getTodayISODate(),
-    value: "",
-    unit: "",
-    note: "",
+    quantity: "",
+    weightGrams: "",
   });
   const [noteForm, setNoteForm] = useState<NoteFormState>({
     date: getTodayISODate(),
     note: "",
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedHarvestYear, setSelectedHarvestYear] = useState<number | null>(null);
 
   useEffect(() => {
     if (!entry) {
       return;
     }
     setHeaderForm(buildHeaderForm(entry));
+    setIsEditing(false);
   }, [entry]);
 
-  if (!entry) {
-    return (
-      <section className="ui-surface space-y-4 p-6">
-        <h1 className="text-2xl font-semibold text-[var(--ink-strong)]">{T.notFoundTitle}</h1>
-        <p className="text-sm text-[var(--ink-soft)]">
-          {T.notFoundText}
-        </p>
-        <Link
-          href="/mein-garten"
-          className="ui-focus inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 focus-visible:ring-offset-[var(--paper)]"
-        >
-          {C.backToMyGarden}
-        </Link>
-      </section>
-    );
-  }
-
-  if (!headerForm) {
-    return null;
-  }
-
-  const resolvedEntry = entry;
-  const resolvedEntryId = resolvedEntry.id;
-  const events = getEventsForGardenEntry(resolvedEntryId, gardenState.events);
+  const resolvedEntry = entry ?? null;
+  const resolvedEntryId = resolvedEntry?.id ?? "";
+  const events = resolvedEntry
+    ? getEventsForGardenEntry(resolvedEntryId, gardenState.events)
+    : [];
 
   const startInfoEvents = sortEventsByDateAsc(
     events.filter(
@@ -224,19 +196,58 @@ export function GardenEntryDetailClient({
     events.filter((eventItem) => eventItem.type === "notiz"),
   );
 
-  const firstHarvest = harvestEvents.find((item) => item.type === "erste_ernte");
-  const lastHarvest = [...harvestEvents]
-    .reverse()
-    .find((item) => item.type === "letzte_ernte");
-
-  const harvestTotals = harvestEvents.reduce<Record<string, number>>((acc, eventItem) => {
-    if (eventItem.value === undefined) {
-      return acc;
+  const harvestEntries = toHarvestEntries(harvestEvents);
+  const harvestYears = getHarvestYears(harvestEntries);
+  useEffect(() => {
+    if (harvestYears.length === 0) {
+      setSelectedHarvestYear(null);
+      return;
     }
-    const key = eventItem.unit ?? "";
-    acc[key] = (acc[key] ?? 0) + eventItem.value;
-    return acc;
-  }, {});
+
+    setSelectedHarvestYear((current) => {
+      if (current && harvestYears.includes(current)) {
+        return current;
+      }
+      return harvestYears[harvestYears.length - 1];
+    });
+  }, [harvestYears]);
+
+  const selectedYearIndex =
+    selectedHarvestYear === null ? -1 : harvestYears.indexOf(selectedHarvestYear);
+  const canGoToPreviousYear = selectedYearIndex > 0;
+  const canGoToNextYear =
+    selectedYearIndex >= 0 && selectedYearIndex < harvestYears.length - 1;
+
+  const selectedYearTotals =
+    selectedHarvestYear === null
+      ? { quantity: 0, weightGrams: 0 }
+      : sumHarvestForYear(harvestEntries, selectedHarvestYear);
+
+  const latestHarvestEntries = [...harvestEntries].sort((a, b) =>
+    b.date.localeCompare(a.date),
+  );
+  const latestFiveHarvests = latestHarvestEntries.slice(0, 5);
+
+  if (!resolvedEntry) {
+    return (
+      <section className="ui-surface space-y-4 p-6">
+        <h1 className="text-2xl font-semibold text-[var(--ink-strong)]">{T.notFoundTitle}</h1>
+        <p className="text-sm text-[var(--ink-soft)]">
+          {T.notFoundText}
+        </p>
+        <Link
+          href="/mein-garten"
+          className="ui-focus inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 focus-visible:ring-offset-[var(--paper)]"
+        >
+          {C.backToMyGarden}
+        </Link>
+      </section>
+    );
+  }
+
+  if (!headerForm) {
+    return null;
+  }
 
   function patchEntry(patch: Partial<HeaderFormState>) {
     if (!headerForm) {
@@ -277,12 +288,20 @@ export function GardenEntryDetailClient({
     );
   }
 
-  function handleSaveHeader(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function handleSaveHeader() {
     if (!headerForm || !headerForm.startDate) {
       return;
     }
     patchEntry({});
+    setIsEditing(false);
+  }
+
+  function handleCancelHeaderEdit() {
+    if (!resolvedEntry) {
+      return;
+    }
+    setHeaderForm(buildHeaderForm(resolvedEntry));
+    setIsEditing(false);
   }
 
   function handleAddFertilizer(event: React.FormEvent<HTMLFormElement>) {
@@ -309,23 +328,26 @@ export function GardenEntryDetailClient({
       return;
     }
 
+    const parsedQuantity = toOptionalNumber(harvestForm.quantity);
+    const parsedWeightGrams = toOptionalNumber(harvestForm.weightGrams);
+    if (parsedQuantity === undefined && parsedWeightGrams === undefined) {
+      return;
+    }
+
     setGardenState((current) =>
       service.addEvent(current, {
         gardenEntryId: resolvedEntryId,
-        type: harvestForm.type,
+        type: "erste_ernte",
         date: harvestForm.date,
-        value: toOptionalNumber(harvestForm.value),
-        unit: harvestForm.unit || undefined,
-        note: toOptionalText(harvestForm.note),
+        quantity: parsedQuantity,
+        weightGrams: parsedWeightGrams,
       }),
     );
 
     setHarvestForm({
-      type: "erste_ernte",
       date: getTodayISODate(),
-      value: "",
-      unit: "",
-      note: "",
+      quantity: "",
+      weightGrams: "",
     });
   }
 
@@ -347,6 +369,20 @@ export function GardenEntryDetailClient({
     setNoteForm({ date: getTodayISODate(), note: "" });
   }
 
+  function goToPreviousHarvestYear() {
+    if (!canGoToPreviousYear || selectedYearIndex <= 0) {
+      return;
+    }
+    setSelectedHarvestYear(harvestYears[selectedYearIndex - 1]);
+  }
+
+  function goToNextHarvestYear() {
+    if (!canGoToNextYear || selectedYearIndex < 0) {
+      return;
+    }
+    setSelectedHarvestYear(harvestYears[selectedYearIndex + 1]);
+  }
+
   return (
     <div className="pb-10">
       <section className="ui-page-head">
@@ -361,157 +397,200 @@ export function GardenEntryDetailClient({
           {plantNameBySlug[resolvedEntry.plantSlug] ?? resolvedEntry.plantSlug}
         </h1>
 
-        <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
-          <div className="ui-surface space-y-1.5 p-4 md:p-5">
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.reference}</dt>
-              <dd className="text-[var(--ink-strong)]">{resolvedEntry.reference ?? C.notAvailable}</dd>
-            </div>
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.location}</dt>
-              <dd className="text-[var(--ink-strong)]">{resolvedEntry.sunExposure ?? C.notAvailable}</dd>
-            </div>
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.typeVessel}</dt>
-              <dd className="text-[var(--ink-strong)]">{resolvedEntry.growingType ?? C.notAvailable}</dd>
-            </div>
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.place}</dt>
-              <dd className="text-[var(--ink-strong)]">{resolvedEntry.place ?? C.notAvailable}</dd>
-            </div>
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.amount}</dt>
-              <dd className="text-[var(--ink-strong)]">{resolvedEntry.amount ?? C.notAvailable}</dd>
-            </div>
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.startDate}</dt>
-              <dd className="text-[var(--ink-strong)]">{formatDate(resolvedEntry.startDate)}</dd>
-            </div>
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.endDate}</dt>
-              <dd className="text-[var(--ink-strong)]">
-                {resolvedEntry.endDate ? formatDate(resolvedEntry.endDate) : C.active}
-              </dd>
-            </div>
-            <div className="grid grid-cols-[12rem_1fr] gap-3 py-1.5 text-sm">
-              <dt className="font-medium text-[var(--ink-soft)]">{T.fields.startType}</dt>
-              <dd className="text-[var(--ink-strong)]">
-                {resolvedEntry.startType === "direktaussaat"
-                  ? uiDe.garden.startType.direktaussaat
-                  : uiDe.garden.startType.vorzucht}
-              </dd>
-            </div>
+        <div className={`ui-surface space-y-2 p-4 md:p-5 ${isEditing ? "bg-white/80" : ""}`}>
+          <div className="mb-1 flex items-center justify-between gap-3">
+            <p className="ui-label">{T.baseAdjustTitle}</p>
+            {!isEditing ? (
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="ui-focus inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line-soft)] bg-white/80 text-sm text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink-strong)] focus-visible:ring-offset-[var(--paper)]"
+                aria-label="Stammdaten bearbeiten"
+                title="Bearbeiten"
+              >
+                ✎
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancelHeaderEdit}
+                  className="ui-focus rounded-lg border border-[var(--line-soft)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink)] focus-visible:ring-offset-[var(--paper)]"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveHeader}
+                  className="ui-focus rounded-lg border border-emerald-800/20 bg-emerald-700/90 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:ring-offset-[var(--paper)]"
+                >
+                  Speichern
+                </button>
+              </div>
+            )}
           </div>
 
-          <form
-            className="ui-surface space-y-2 p-4"
-            onSubmit={handleSaveHeader}
-          >
-            <h2 className="ui-label">
-              {T.baseAdjustTitle}
-            </h2>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <input
-                type="text"
-                value={headerForm.reference}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current ? { ...current, reference: e.target.value } : current,
-                  )
-                }
-                placeholder={T.fields.reference}
-                className="ui-input"
-              />
-              <input
-                type="text"
-                value={headerForm.sunExposure}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current ? { ...current, sunExposure: e.target.value } : current,
-                  )
-                }
-                placeholder={T.fields.location}
-                className="ui-input"
-              />
-              <input
-                type="text"
-                value={headerForm.growingType}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current ? { ...current, growingType: e.target.value } : current,
-                  )
-                }
-                placeholder={T.fields.typeVessel}
-                className="ui-input"
-              />
-              <input
-                type="text"
-                value={headerForm.place}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current ? { ...current, place: e.target.value } : current,
-                  )
-                }
-                placeholder={T.fields.place}
-                className="ui-input"
-              />
-              <input
-                type="text"
-                value={headerForm.amount}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current ? { ...current, amount: e.target.value } : current,
-                  )
-                }
-                placeholder={T.fields.amount}
-                className="ui-input"
-              />
-              <select
-                value={headerForm.startType}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current
-                      ? { ...current, startType: e.target.value as GardenStartType }
-                      : current,
-                  )
-                }
-                className="ui-input"
-              >
-                <option value="vorzucht">{uiDe.garden.startType.vorzucht}</option>
-                <option value="direktaussaat">{uiDe.garden.startType.direktaussaat}</option>
-              </select>
-              <input
-                type="date"
-                value={headerForm.startDate}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current ? { ...current, startDate: e.target.value } : current,
-                  )
-                }
-                className="ui-input"
-                required
-              />
-              <input
-                type="date"
-                value={headerForm.endDate}
-                onChange={(e) =>
-                  setHeaderForm((current) =>
-                    current ? { ...current, endDate: e.target.value } : current,
-                  )
-                }
-                className="ui-input"
-              />
+          <div className="grid gap-x-4 gap-y-2 md:grid-cols-2">
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.reference}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">{resolvedEntry.reference ?? C.notAvailable}</dd>
+              ) : (
+                <input
+                  type="text"
+                  value={headerForm.reference}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current ? { ...current, reference: e.target.value } : current,
+                    )
+                  }
+                  placeholder={T.fields.reference}
+                  className="ui-input"
+                />
+              )}
             </div>
 
-            <div>
-              <button
-                type="submit"
-                className="rounded-lg border border-emerald-800/20 bg-emerald-700/90 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
-              >
-                {T.saveChanges}
-              </button>
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.location}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">{resolvedEntry.sunExposure ?? C.notAvailable}</dd>
+              ) : (
+                <input
+                  type="text"
+                  value={headerForm.sunExposure}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current ? { ...current, sunExposure: e.target.value } : current,
+                    )
+                  }
+                  placeholder={T.fields.location}
+                  className="ui-input"
+                />
+              )}
             </div>
-          </form>
+
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.typeVessel}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">{resolvedEntry.growingType ?? C.notAvailable}</dd>
+              ) : (
+                <input
+                  type="text"
+                  value={headerForm.growingType}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current ? { ...current, growingType: e.target.value } : current,
+                    )
+                  }
+                  placeholder={T.fields.typeVessel}
+                  className="ui-input"
+                />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.place}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">{resolvedEntry.place ?? C.notAvailable}</dd>
+              ) : (
+                <input
+                  type="text"
+                  value={headerForm.place}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current ? { ...current, place: e.target.value } : current,
+                    )
+                  }
+                  placeholder={T.fields.place}
+                  className="ui-input"
+                />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.amount}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">{resolvedEntry.amount ?? C.notAvailable}</dd>
+              ) : (
+                <input
+                  type="text"
+                  value={headerForm.amount}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current ? { ...current, amount: e.target.value } : current,
+                    )
+                  }
+                  placeholder={T.fields.amount}
+                  className="ui-input"
+                />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.startType}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">
+                  {resolvedEntry.startType === "direktaussaat"
+                    ? uiDe.garden.startType.direktaussaat
+                    : uiDe.garden.startType.vorzucht}
+                </dd>
+              ) : (
+                <select
+                  value={headerForm.startType}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current
+                        ? { ...current, startType: e.target.value as GardenStartType }
+                        : current,
+                    )
+                  }
+                  className="ui-input"
+                >
+                  <option value="vorzucht">{uiDe.garden.startType.vorzucht}</option>
+                  <option value="direktaussaat">{uiDe.garden.startType.direktaussaat}</option>
+                </select>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.startDate}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">{formatDate(resolvedEntry.startDate)}</dd>
+              ) : (
+                <input
+                  type="date"
+                  value={headerForm.startDate}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current ? { ...current, startDate: e.target.value } : current,
+                    )
+                  }
+                  className="ui-input"
+                  required
+                />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <dt className="ui-label">{T.fields.endDate}</dt>
+              {!isEditing ? (
+                <dd className="text-sm text-[var(--ink-strong)]">
+                  {resolvedEntry.endDate ? formatDate(resolvedEntry.endDate) : C.active}
+                </dd>
+              ) : (
+                <input
+                  type="date"
+                  value={headerForm.endDate}
+                  onChange={(e) =>
+                    setHeaderForm((current) =>
+                      current ? { ...current, endDate: e.target.value } : current,
+                    )
+                  }
+                  className="ui-input"
+                />
+              )}
+            </div>
+          </div>
         </div>
 
         {startInfoEvents.length > 0 && (
@@ -613,128 +692,142 @@ export function GardenEntryDetailClient({
             </p>
           </div>
 
-          <div className="grid gap-2 text-sm md:grid-cols-3">
-            <div className="ui-subtle-block">
-              <p className="ui-label">
-                {T.harvest.first}
-              </p>
-              <p className="font-medium text-[var(--ink-strong)]">
-                {firstHarvest ? formatDate(firstHarvest.date) : C.notAvailable}
-              </p>
-            </div>
-            <div className="ui-subtle-block">
-              <p className="ui-label">
-                {T.harvest.last}
-              </p>
-              <p className="font-medium text-[var(--ink-strong)]">
-                {lastHarvest ? formatDate(lastHarvest.date) : C.notAvailable}
-              </p>
-            </div>
-            <div className="ui-subtle-block">
-              <p className="ui-label">
-                {T.harvest.total}
-              </p>
-              <p className="font-medium text-[var(--ink-strong)]">
-                {Object.keys(harvestTotals).length === 0
-                  ? C.notAvailable
-                  : Object.entries(harvestTotals)
-                      .map(([unit, value]) => `${value} ${unitLabel(unit)}`.trim())
-                      .join(" • ")}
-              </p>
-            </div>
-          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <section className="ui-card space-y-4 p-4">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={goToPreviousHarvestYear}
+                  disabled={!canGoToPreviousYear}
+                  className="ui-focus inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line-soft)] bg-white text-sm text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink-strong)] disabled:cursor-not-allowed disabled:opacity-35"
+                  aria-label="Vorheriges Erntejahr"
+                >
+                  ‹
+                </button>
+                <p className="text-base font-semibold text-[var(--ink-strong)]">
+                  {selectedHarvestYear ?? C.notAvailable}
+                </p>
+                <button
+                  type="button"
+                  onClick={goToNextHarvestYear}
+                  disabled={!canGoToNextYear}
+                  className="ui-focus inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line-soft)] bg-white text-sm text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink-strong)] disabled:cursor-not-allowed disabled:opacity-35"
+                  aria-label="Nächstes Erntejahr"
+                >
+                  ›
+                </button>
+              </div>
 
-          <form className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5" onSubmit={handleAddHarvest}>
-            <select
-              value={harvestForm.type}
-              onChange={(e) =>
-                setHarvestForm((current) => ({
-                  ...current,
-                  type: e.target.value as "erste_ernte" | "letzte_ernte",
-                }))
-              }
-              className="ui-input"
-            >
-              <option value="erste_ernte">{T.harvest.first}</option>
-              <option value="letzte_ernte">{T.harvest.last}</option>
-            </select>
-            <input
-              type="date"
-              value={harvestForm.date}
-              onChange={(e) =>
-                setHarvestForm((current) => ({ ...current, date: e.target.value }))
-              }
-              className="ui-input"
-              required
-            />
-            <input
-              type="number"
-              step="0.01"
-              value={harvestForm.value}
-              onChange={(e) =>
-                setHarvestForm((current) => ({ ...current, value: e.target.value }))
-              }
-              placeholder={T.fields.amount}
-              className="ui-input"
-            />
-            <select
-              value={harvestForm.unit}
-              onChange={(e) =>
-                setHarvestForm((current) => ({
-                  ...current,
-                  unit: e.target.value as GardenValueUnit | "",
-                }))
-              }
-              className="ui-input"
-            >
-              <option value="">{T.harvest.unitPlaceholder}</option>
-              {UNIT_OPTIONS.map((unit) => (
-                <option key={unit.value} value={unit.value}>
-                  {unit.label}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className="rounded-lg border border-emerald-800/20 bg-emerald-700/90 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
-            >
-              {C.add}
-            </button>
-            <input
-              type="text"
-              value={harvestForm.note}
-              onChange={(e) =>
-                setHarvestForm((current) => ({ ...current, note: e.target.value }))
-              }
-              placeholder={C.noteOptional}
-              className="ui-input sm:col-span-2 lg:col-span-5"
-            />
-          </form>
-
-          {harvestEvents.length === 0 ? (
-            <p className="text-sm text-[var(--ink-soft)]">{T.headValues.harvestNone}</p>
-          ) : (
-            <ul className="ui-list-divider rounded-xl border border-[var(--line-soft)] bg-white/65 px-3">
-              {harvestEvents.map((eventItem) => (
-                <li key={eventItem.id} className="space-y-0.5 py-2.5 text-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-medium text-[var(--ink-strong)]">
-                      {eventItem.type === "erste_ernte" ? T.harvest.first : T.harvest.last}
-                    </span>
-                    <span className="text-[var(--ink-soft)]">{formatDate(eventItem.date)}</span>
-                  </div>
-                  <p className="text-[var(--ink-soft)]">
-                    {formatValueWithUnit(eventItem.value, eventItem.unit)
-                      ? `${T.harvest.yieldPrefix}: ${formatValueWithUnit(eventItem.value, eventItem.unit)}`
-                      : ""}
-                    {eventItem.note
-                      ? `${formatValueWithUnit(eventItem.value, eventItem.unit) ? " • " : ""}${eventItem.note}`
-                      : ""}
+              <div className="space-y-3">
+                <p className="ui-label">{T.harvest.totalTitle}</p>
+                <div className="space-y-1.5">
+                  <p className="text-sm text-[var(--ink)]">
+                    <span className="font-semibold text-[var(--ink-strong)]">
+                      {selectedYearTotals.quantity}
+                    </span>{" "}
+                    {T.harvest.totalQuantity}
                   </p>
-                </li>
-              ))}
-            </ul>
-          )}
+                  <p className="text-sm text-[var(--ink)]">
+                    <span className="font-semibold text-[var(--ink-strong)]">
+                      {(selectedYearTotals.weightGrams / 1000).toLocaleString("de-DE", {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>{" "}
+                    {T.harvest.totalWeight}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="ui-card space-y-3 p-4">
+              <h3 className="text-base font-semibold text-[var(--ink-strong)]">
+                {T.harvest.latestTitle}
+              </h3>
+              {latestFiveHarvests.length === 0 ? (
+                <p className="text-sm text-[var(--ink-soft)]">{T.headValues.harvestNone}</p>
+              ) : (
+                <ul className="ui-list-divider rounded-lg border border-[var(--line-soft)] bg-white/75 px-3">
+                  {latestFiveHarvests.map((entryItem) => (
+                    <li key={entryItem.id} className="py-2.5 text-sm text-[var(--ink)]">
+                      <span className="font-medium text-[var(--ink-strong)]">
+                        {formatShortDate(entryItem.date)}
+                      </span>{" "}
+                      →{" "}
+                      <span>
+                        {entryItem.quantity ?? 0} {T.harvest.totalQuantity}
+                      </span>{" "}
+                      |{" "}
+                      <span>
+                        {entryItem.weightGrams ?? 0} g
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className="ui-card space-y-3 p-4">
+              <h3 className="text-base font-semibold text-[var(--ink-strong)]">
+                {T.harvest.addTitle}
+              </h3>
+
+              <form className="space-y-2" onSubmit={handleAddHarvest}>
+                <label className="space-y-1">
+                  <span className="ui-label">{C.date}</span>
+                  <input
+                    type="date"
+                    value={harvestForm.date}
+                    onChange={(e) =>
+                      setHarvestForm((current) => ({ ...current, date: e.target.value }))
+                    }
+                    className="ui-input"
+                    required
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="ui-label">{T.harvest.quantityField}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step="1"
+                    value={harvestForm.quantity}
+                    onChange={(e) =>
+                      setHarvestForm((current) => ({
+                        ...current,
+                        quantity: e.target.value,
+                      }))
+                    }
+                    className="ui-input"
+                    placeholder="0"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="ui-label">{T.harvest.weightField}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step="1"
+                    value={harvestForm.weightGrams}
+                    onChange={(e) =>
+                      setHarvestForm((current) => ({
+                        ...current,
+                        weightGrams: e.target.value,
+                      }))
+                    }
+                    className="ui-input"
+                    placeholder="0"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="w-full rounded-lg border border-emerald-800/20 bg-emerald-700/90 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                >
+                  {T.harvest.addButton}
+                </button>
+              </form>
+            </section>
+          </div>
         </div>
       </section>
 

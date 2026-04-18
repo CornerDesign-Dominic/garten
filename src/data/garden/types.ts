@@ -44,4 +44,6 @@ export type GardenEvent = {
   note?: string;
   value?: number;
   unit?: GardenValueUnit;
+  quantity?: number;
+  weightGrams?: number;
 };

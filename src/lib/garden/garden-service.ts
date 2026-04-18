@@ -34,6 +34,8 @@ type NewGardenEventInput = {
   note?: string;
   value?: number;
   unit?: GardenValueUnit;
+  quantity?: number;
+  weightGrams?: number;
 };
 
 function createId(prefix: string) {
@@ -112,6 +114,8 @@ export class GardenService {
       note: input.note,
       value: input.value,
       unit: input.unit,
+      quantity: input.quantity,
+      weightGrams: input.weightGrams,
     };
 
     return this.save({

@@ -1,4 +1,4 @@
-export const uiDe = {
+﻿export const uiDe = {
   common: {
     backToMyGarden: "Zurück zu Mein Garten",
     notAvailable: "–",
@@ -16,7 +16,7 @@ export const uiDe = {
     detail: {
       notFoundTitle: "Eintrag nicht gefunden",
       notFoundText: "Dieser Garten-Eintrag ist lokal nicht vorhanden.",
-      baseAdjustTitle: "Basisdaten direkt anpassen",
+      baseAdjustTitle: "Stammdaten",
       saveChanges: "Änderungen speichern",
       startInfoTitle: "Startinformationen",
       sectionTitles: {
@@ -27,7 +27,7 @@ export const uiDe = {
       sectionDescriptions: {
         fertilizer:
           "Erfasse neue Düngungen direkt hier. Die Liste darunter zeigt alle bisherigen Düngungsdaten.",
-        harvest: "Erste und letzte Ernte sowie Ertragsmengen werden hier gesammelt.",
+        harvest: "Ernte-Historie und Jahresübersicht für diesen Garten-Eintrag.",
         internalNotes:
           "Saisonnotizen bleiben hier gesammelt und chronologisch nachvollziehbar.",
       },
@@ -54,6 +54,14 @@ export const uiDe = {
         total: "Ertrag gesamt",
         yieldPrefix: "Ertrag",
         unitPlaceholder: "Einheit",
+        addTitle: "Ernte hinzufügen",
+        totalTitle: "Insgesamt",
+        latestTitle: "Letzte Ernten",
+        totalQuantity: "Stück",
+        totalWeight: "Kilogramm",
+        quantityField: "Anzahl",
+        weightField: "Gewicht (g)",
+        addButton: "Ernte hinzufügen",
       },
       fertilizer: {
         notePlaceholder: "z. B. Komposttee",
@@ -82,6 +90,7 @@ export const uiDe = {
         amount: "Menge",
         place: "Ort",
         end: "Ende",
+        latestHarvests: "Letzte Ernten",
       },
       form: {
         plant: "Pflanze",

@@ -9,6 +9,8 @@ import {
   GardenService,
   buildGardenYearGroups,
   createLocalGardenStorage,
+  getEventsForGardenEntry,
+  toHarvestEntries,
 } from "@/lib/garden";
 import type { GardenState } from "@/lib/garden";
 
@@ -66,6 +68,18 @@ function formatDate(date: string) {
   return new Intl.DateTimeFormat("de-DE").format(parsed);
 }
 
+function formatShortDate(date: string) {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) {
+    return date;
+  }
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  }).format(parsed);
+}
+
 export function MyGardenClient({
   plantOptions,
   initialPlantSlug,
@@ -103,6 +117,30 @@ export function MyGardenClient({
     () => buildGardenYearGroups(gardenState.entries),
     [gardenState.entries],
   );
+  const latestHarvestsByEntryId = useMemo(() => {
+    const map: Record<
+      string,
+      Array<{ id: string; date: string; quantity: number; weightGrams: number }>
+    > = {};
+
+    for (const entry of gardenState.entries) {
+      const harvests = toHarvestEntries(
+        getEventsForGardenEntry(entry.id, gardenState.events),
+      )
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 3)
+        .map((item) => ({
+          id: item.id,
+          date: item.date,
+          quantity: item.quantity ?? 0,
+          weightGrams: item.weightGrams ?? 0,
+        }));
+
+      map[entry.id] = harvests;
+    }
+
+    return map;
+  }, [gardenState.entries, gardenState.events]);
 
   function handleEntrySubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -338,6 +376,23 @@ export function MyGardenClient({
                           </div>
                         )}
                       </dl>
+
+                      {latestHarvestsByEntryId[entry.id]?.length > 0 && (
+                        <div className="mt-3 ui-subtle-block">
+                          <p className="ui-label mb-1">{T.card.latestHarvests}</p>
+                          <ul className="space-y-0.5">
+                            {latestHarvestsByEntryId[entry.id].map((harvestItem) => (
+                              <li
+                                key={harvestItem.id}
+                                className="text-xs text-[var(--ink-soft)]"
+                              >
+                                {formatShortDate(harvestItem.date)} → {harvestItem.quantity}{" "}
+                                Stück | {harvestItem.weightGrams} g
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </Link>
                   );
                 })}

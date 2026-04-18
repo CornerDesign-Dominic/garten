@@ -5,6 +5,12 @@ export { createLocalGardenStorage } from "./storage";
 export type { GardenState, GardenStorage } from "./storage";
 export { buildGardenYearGroups } from "./view-models";
 export type { GardenYearCard, GardenYearGroup } from "./view-models";
+export {
+  getHarvestYears,
+  sumHarvestForYear,
+  toHarvestEntries,
+} from "./harvest";
+export type { HarvestEntry } from "./harvest";
 
 export function getEventsForGardenEntry(
   gardenEntryId: string,
