@@ -2,7 +2,7 @@ export type ISODateString = string;
 
 export type GardenEventBaseType =
   | "vorzucht"
-  | "direktsaat"
+  | "aussaat"
   | "auspflanzen"
   | "duengen"
   | "erste_ernte"

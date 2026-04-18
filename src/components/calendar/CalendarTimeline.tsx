@@ -17,7 +17,7 @@ export function CalendarTimeline({ plants, year }: CalendarTimelineProps) {
     <section className="rounded-2xl border border-emerald-900/10 bg-white/55 p-5 md:p-6">
       <div className="overflow-x-auto">
         <div className="min-w-[860px] space-y-5">
-          <CalendarHeader year={year} />
+          <CalendarHeader />
 
           <div className="divide-y divide-emerald-900/10">
             {rows.map((row) => (

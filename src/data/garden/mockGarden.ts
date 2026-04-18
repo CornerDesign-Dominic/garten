@@ -113,7 +113,7 @@ export const mockGardenEvents: GardenEvent[] = [
   {
     id: "event_feldsalat_1",
     gardenEntryId: "entry_feldsalat_2026_westbeet",
-    type: "direktsaat",
+    type: "aussaat",
     date: "2026-09-02",
     note: "Breitwuerfig ausgesaet, leicht eingeharkt.",
   },

@@ -1,5 +1,8 @@
 import { plantsBySlug } from "@/data/plants";
 import type { GardenEntry, GardenEvent } from "@/data/garden/types";
+export { GardenService } from "./garden-service";
+export { createLocalGardenStorage } from "./storage";
+export type { GardenState, GardenStorage } from "./storage";
 
 export function getEventsForGardenEntry(
   gardenEntryId: string,
