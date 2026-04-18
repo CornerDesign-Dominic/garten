@@ -148,7 +148,9 @@ export function GardenEntryDetailClient({
     );
   }
 
-  const events = getEventsForGardenEntry(entry.id, gardenState.events);
+  const resolvedEntry = entry;
+  const resolvedEntryId = resolvedEntry.id;
+  const events = getEventsForGardenEntry(resolvedEntryId, gardenState.events);
 
   function handleSaveEntry(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -157,7 +159,7 @@ export function GardenEntryDetailClient({
     }
 
     setGardenState((current) =>
-      service.updateEntry(current, entry.id, {
+      service.updateEntry(current, resolvedEntryId, {
         startDate: editForm.startDate,
         endDate: toOptionalText(editForm.endDate),
         place: toOptionalText(editForm.place),
@@ -178,7 +180,7 @@ export function GardenEntryDetailClient({
 
     setGardenState((current) =>
       service.addEvent(current, {
-        gardenEntryId: entry.id,
+        gardenEntryId: resolvedEntryId,
         type: eventForm.type,
         date: eventForm.date,
         note: toOptionalText(eventForm.note),
@@ -473,4 +475,3 @@ export function GardenEntryDetailClient({
     </div>
   );
 }
-
