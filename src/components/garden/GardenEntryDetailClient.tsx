@@ -48,7 +48,6 @@ type HarvestFormState = {
 };
 
 type NoteFormState = {
-  date: string;
   note: string;
 };
 
@@ -64,6 +63,20 @@ function formatDate(date: string) {
     return date;
   }
   return new Intl.DateTimeFormat("de-DE").format(parsed);
+}
+
+function formatDateTime(date: string) {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) {
+    return date;
+  }
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
 }
 
 function toOptionalText(value: string) {
@@ -152,7 +165,6 @@ export function GardenEntryDetailClient({
     weightGrams: "",
   });
   const [noteForm, setNoteForm] = useState<NoteFormState>({
-    date: getTodayISODate(),
     note: "",
   });
   const [isEditing, setIsEditing] = useState(false);
@@ -192,9 +204,9 @@ export function GardenEntryDetailClient({
     ),
   );
 
-  const noteEvents = sortEventsByDateAsc(
+  const noteEvents = [...sortEventsByDateAsc(
     events.filter((eventItem) => eventItem.type === "notiz"),
-  );
+  )].sort((a, b) => b.date.localeCompare(a.date));
 
   const harvestEntries = toHarvestEntries(harvestEvents);
   const harvestYears = getHarvestYears(harvestEntries);
@@ -353,7 +365,7 @@ export function GardenEntryDetailClient({
 
   function handleAddNote(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!noteForm.date || !noteForm.note.trim()) {
+    if (!noteForm.note.trim()) {
       return;
     }
 
@@ -361,12 +373,12 @@ export function GardenEntryDetailClient({
       service.addEvent(current, {
         gardenEntryId: resolvedEntryId,
         type: "notiz",
-        date: noteForm.date,
+        date: new Date().toISOString(),
         note: toOptionalText(noteForm.note),
       }),
     );
 
-    setNoteForm({ date: getTodayISODate(), note: "" });
+    setNoteForm({ note: "" });
   }
 
   function goToPreviousHarvestYear() {
@@ -385,7 +397,7 @@ export function GardenEntryDetailClient({
 
   return (
     <div className="pb-10">
-      <section className="ui-page-head">
+      <section className="space-y-4 py-7 md:py-9">
         <Link
           href="/mein-garten"
           className="ui-focus inline-flex text-sm font-medium text-emerald-800 hover:text-emerald-700 focus-visible:ring-offset-[var(--paper)]"
@@ -397,40 +409,8 @@ export function GardenEntryDetailClient({
           {plantNameBySlug[resolvedEntry.plantSlug] ?? resolvedEntry.plantSlug}
         </h1>
 
-        <div className={`ui-surface space-y-2 p-4 md:p-5 ${isEditing ? "bg-white/80" : ""}`}>
-          <div className="mb-1 flex items-center justify-between gap-3">
-            <p className="ui-label">{T.baseAdjustTitle}</p>
-            {!isEditing ? (
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="ui-focus inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line-soft)] bg-white/80 text-sm text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink-strong)] focus-visible:ring-offset-[var(--paper)]"
-                aria-label="Stammdaten bearbeiten"
-                title="Bearbeiten"
-              >
-                ✎
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleCancelHeaderEdit}
-                  className="ui-focus rounded-lg border border-[var(--line-soft)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink)] focus-visible:ring-offset-[var(--paper)]"
-                >
-                  Abbrechen
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveHeader}
-                  className="ui-focus rounded-lg border border-emerald-800/20 bg-emerald-700/90 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:ring-offset-[var(--paper)]"
-                >
-                  Speichern
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="grid gap-x-4 gap-y-2 md:grid-cols-2">
+        <div className="grid items-start gap-6 lg:grid-cols-[1fr_auto]">
+          <div className="grid gap-x-5 gap-y-2 md:grid-cols-2">
             <div className="space-y-1">
               <dt className="ui-label">{T.fields.reference}</dt>
               {!isEditing ? (
@@ -591,6 +571,37 @@ export function GardenEntryDetailClient({
               )}
             </div>
           </div>
+
+          <div className="flex justify-start lg:justify-end">
+            {!isEditing ? (
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="ui-focus inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line-soft)] bg-white/70 text-sm text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink-strong)] focus-visible:ring-offset-[var(--paper)]"
+                aria-label="Stammdaten bearbeiten"
+                title="Bearbeiten"
+              >
+                ✎
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancelHeaderEdit}
+                  className="ui-focus rounded-lg border border-[var(--line-soft)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--ink-soft)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink)] focus-visible:ring-offset-[var(--paper)]"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveHeader}
+                  className="ui-focus rounded-lg border border-emerald-800/20 bg-emerald-700/90 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 focus-visible:ring-offset-[var(--paper)]"
+                >
+                  Speichern
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {startInfoEvents.length > 0 && (
@@ -682,7 +693,7 @@ export function GardenEntryDetailClient({
       </section>
 
       <section className="ui-divider pt-8">
-        <div className="ui-section max-w-4xl">
+        <div className="ui-section">
           <div>
             <h2 className="ui-section-title">
               {T.sectionTitles.harvest}
@@ -692,8 +703,9 @@ export function GardenEntryDetailClient({
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            <section className="ui-card space-y-4 p-4">
+          <div className="rounded-xl border border-[var(--line-soft)] bg-white/55">
+            <div className="grid divide-y divide-[var(--line-soft)] lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+              <section className="space-y-4 p-4">
               <div className="flex items-center justify-between">
                 <button
                   type="button"
@@ -738,9 +750,9 @@ export function GardenEntryDetailClient({
                   </p>
                 </div>
               </div>
-            </section>
+              </section>
 
-            <section className="ui-card space-y-3 p-4">
+              <section className="space-y-3 p-4">
               <h3 className="text-base font-semibold text-[var(--ink-strong)]">
                 {T.harvest.latestTitle}
               </h3>
@@ -765,9 +777,9 @@ export function GardenEntryDetailClient({
                   ))}
                 </ul>
               )}
-            </section>
+              </section>
 
-            <section className="ui-card space-y-3 p-4">
+              <section className="space-y-3 p-4">
               <h3 className="text-base font-semibold text-[var(--ink-strong)]">
                 {T.harvest.addTitle}
               </h3>
@@ -826,7 +838,8 @@ export function GardenEntryDetailClient({
                   {T.harvest.addButton}
                 </button>
               </form>
-            </section>
+              </section>
+            </div>
           </div>
         </div>
       </section>
@@ -835,23 +848,14 @@ export function GardenEntryDetailClient({
         <div className="ui-section max-w-4xl">
           <div>
             <h2 className="ui-section-title">
-              {T.sectionTitles.internalNotes}
+              Notiz zu {plantNameBySlug[resolvedEntry.plantSlug] ?? resolvedEntry.plantSlug}
             </h2>
             <p className="ui-section-hint">
               {T.sectionDescriptions.internalNotes}
             </p>
           </div>
 
-          <form className="grid gap-2 sm:grid-cols-[11rem_1fr_auto]" onSubmit={handleAddNote}>
-            <input
-              type="date"
-              value={noteForm.date}
-              onChange={(e) =>
-                setNoteForm((current) => ({ ...current, date: e.target.value }))
-              }
-              className="ui-input"
-              required
-            />
+          <form className="grid gap-2 sm:grid-cols-[1fr_auto]" onSubmit={handleAddNote}>
             <textarea
               value={noteForm.note}
               onChange={(e) =>
@@ -859,6 +863,7 @@ export function GardenEntryDetailClient({
               }
               placeholder={T.notes.addPlaceholder}
               className="ui-input min-h-11"
+              maxLength={1000}
               required
             />
             <button
@@ -868,6 +873,9 @@ export function GardenEntryDetailClient({
               {C.add}
             </button>
           </form>
+          <p className="ui-meta text-right">
+            {noteForm.note.length}/1000
+          </p>
 
           {(resolvedEntry.notes || noteEvents.length > 0) ? (
             <ul className="ui-list-divider rounded-xl border border-[var(--line-soft)] bg-white/65 px-3">
@@ -882,7 +890,7 @@ export function GardenEntryDetailClient({
                 <li key={eventItem.id} className="py-2.5 text-sm">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-medium text-[var(--ink-strong)]">{T.headValues.noteItem}</p>
-                    <p className="text-[var(--ink-soft)]">{formatDate(eventItem.date)}</p>
+                    <p className="text-[var(--ink-soft)]">{formatDateTime(eventItem.date)}</p>
                   </div>
                   <p className="text-[var(--ink-soft)]">{eventItem.note ?? ""}</p>
                 </li>

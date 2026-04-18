@@ -6,8 +6,8 @@ type CalendarRowProps = {
 
 export function CalendarRow({ row }: CalendarRowProps) {
   return (
-    <div className="grid grid-cols-[11rem_1fr] gap-4 py-4">
-      <div className="space-y-2 pt-1">
+    <div className="grid grid-cols-[12rem_1fr] items-center gap-4 py-3">
+      <div className="space-y-2">
         <p className="text-sm font-semibold text-zinc-800">{row.plantName}</p>
         <div className="space-y-1">
           {row.tracks.map((track) => (
