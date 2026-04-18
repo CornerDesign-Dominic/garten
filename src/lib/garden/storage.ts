@@ -10,7 +10,7 @@ export interface GardenStorage {
   save(state: GardenState): void;
 }
 
-const STORAGE_KEY = "gruenkalender:mein-garten:v1";
+const STORAGE_KEY = "gruenkalender:mein-garten:v2";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -28,6 +28,36 @@ function isGardenEntry(value: unknown): value is GardenEntry {
     Number.isFinite(value.year) &&
     typeof value.startDate === "string"
   );
+}
+
+function normalizeEntry(rawEntry: GardenEntry): GardenEntry {
+  const legacyRaw = rawEntry as GardenEntry & {
+    quantity?: number;
+    location?: string;
+  };
+  const legacyAmount =
+    rawEntry.amount ??
+    (typeof legacyRaw.quantity === "number" ? String(legacyRaw.quantity) : undefined);
+  const legacyPlace =
+    rawEntry.place ??
+    (typeof legacyRaw.location === "string" ? legacyRaw.location : undefined);
+  const legacyReference =
+    rawEntry.reference ??
+    (typeof rawEntry.notes === "string" ? rawEntry.notes : undefined);
+
+  return {
+    id: rawEntry.id,
+    plantSlug: rawEntry.plantSlug,
+    year: rawEntry.year,
+    startDate: rawEntry.startDate,
+    endDate: rawEntry.endDate,
+    amount: legacyAmount,
+    place: legacyPlace,
+    growingType: rawEntry.growingType,
+    sunExposure: rawEntry.sunExposure,
+    reference: legacyReference,
+    notes: rawEntry.notes,
+  };
 }
 
 function normalizeEventType(type: string) {
@@ -56,6 +86,7 @@ function sanitizeState(rawState: unknown): GardenState | null {
   const rawEvents = Array.isArray(rawState.events) ? rawState.events : [];
 
   const entries = rawEntries.filter(isGardenEntry);
+  const normalizedEntries = entries.map(normalizeEntry);
   const events = rawEvents
     .filter(isGardenEvent)
     .map((event) => ({
@@ -63,7 +94,7 @@ function sanitizeState(rawState: unknown): GardenState | null {
       type: normalizeEventType(event.type),
     }));
 
-  return { entries, events };
+  return { entries: normalizedEntries, events };
 }
 
 export function createLocalGardenStorage(): GardenStorage {
@@ -94,4 +125,3 @@ export function createLocalGardenStorage(): GardenStorage {
     },
   };
 }
-

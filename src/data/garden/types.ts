@@ -23,8 +23,11 @@ export type GardenEntry = {
   id: string;
   plantSlug: string;
   year: number;
-  quantity?: number;
-  location?: string;
+  amount?: string;
+  place?: string;
+  growingType?: string;
+  sunExposure?: string;
+  reference?: string;
   startDate: ISODateString;
   endDate?: ISODateString;
   notes?: string;

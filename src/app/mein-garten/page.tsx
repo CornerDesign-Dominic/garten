@@ -2,7 +2,14 @@ import { PageShell } from "@/components/layout/PageShell";
 import { MyGardenClient } from "@/components/garden/MyGardenClient";
 import { plants } from "@/data/plants";
 
-export default function MeinGartenPage() {
+type MeinGartenPageProps = {
+  searchParams: Promise<{ plant?: string }>;
+};
+
+export default async function MeinGartenPage({
+  searchParams,
+}: MeinGartenPageProps) {
+  const params = await searchParams;
   const plantOptions = plants.map((plant) => ({
     slug: plant.slug,
     name: plant.name,
@@ -10,7 +17,10 @@ export default function MeinGartenPage() {
 
   return (
     <PageShell>
-      <MyGardenClient plantOptions={plantOptions} />
+      <MyGardenClient
+        plantOptions={plantOptions}
+        initialPlantSlug={params.plant}
+      />
     </PageShell>
   );
 }

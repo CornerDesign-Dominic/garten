@@ -1,16 +1,23 @@
-import { mockGardenEntries, mockGardenEvents } from "@/data/garden";
 import type { GardenEntry, GardenEvent, GardenEventType, GardenValueUnit } from "@/data/garden";
 
 import type { GardenState, GardenStorage } from "./storage";
 
 type NewGardenEntryInput = {
   plantSlug: string;
-  year: number;
-  quantity?: number;
-  location?: string;
   startDate: string;
+  amount?: string;
+  place?: string;
+  growingType?: string;
+  sunExposure?: string;
+  reference?: string;
   endDate?: string;
   notes?: string;
+};
+
+type UpdateGardenEntryInput = Partial<
+  Omit<GardenEntry, "id" | "plantSlug" | "startDate">
+> & {
+  startDate?: string;
 };
 
 type NewGardenEventInput = {
@@ -51,12 +58,10 @@ export class GardenService {
       };
     }
 
-    const seededState: GardenState = {
-      entries: sortEntries(mockGardenEntries),
-      events: sortEvents(mockGardenEvents),
+    return {
+      entries: [],
+      events: [],
     };
-    this.storage.save(seededState);
-    return seededState;
   }
 
   save(state: GardenState): GardenState {
@@ -69,13 +74,17 @@ export class GardenService {
   }
 
   addEntry(current: GardenState, input: NewGardenEntryInput): GardenState {
+    const startYear = new Date(input.startDate).getFullYear();
     const nextEntry: GardenEntry = {
       id: createId("entry"),
       plantSlug: input.plantSlug,
-      year: input.year,
-      quantity: input.quantity,
-      location: input.location,
+      year: Number.isFinite(startYear) ? startYear : new Date().getFullYear(),
       startDate: input.startDate,
+      amount: input.amount,
+      place: input.place,
+      growingType: input.growingType,
+      sunExposure: input.sunExposure,
+      reference: input.reference,
       endDate: input.endDate,
       notes: input.notes,
     };
@@ -102,5 +111,31 @@ export class GardenService {
       events: [...current.events, nextEvent],
     });
   }
-}
 
+  updateEntry(
+    current: GardenState,
+    entryId: string,
+    patch: UpdateGardenEntryInput,
+  ): GardenState {
+    const updatedEntries = current.entries.map((entry) => {
+      if (entry.id !== entryId) {
+        return entry;
+      }
+
+      const nextStartDate = patch.startDate ?? entry.startDate;
+      const nextStartYear = new Date(nextStartDate).getFullYear();
+
+      return {
+        ...entry,
+        ...patch,
+        startDate: nextStartDate,
+        year: Number.isFinite(nextStartYear) ? nextStartYear : entry.year,
+      };
+    });
+
+    return this.save({
+      ...current,
+      entries: updatedEntries,
+    });
+  }
+}

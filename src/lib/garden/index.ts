@@ -3,6 +3,8 @@ import type { GardenEntry, GardenEvent } from "@/data/garden/types";
 export { GardenService } from "./garden-service";
 export { createLocalGardenStorage } from "./storage";
 export type { GardenState, GardenStorage } from "./storage";
+export { buildGardenYearGroups } from "./view-models";
+export type { GardenYearCard, GardenYearGroup } from "./view-models";
 
 export function getEventsForGardenEntry(
   gardenEntryId: string,

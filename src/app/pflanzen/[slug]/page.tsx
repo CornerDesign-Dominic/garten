@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PageShell } from "@/components/layout/PageShell";
@@ -55,6 +56,14 @@ export default async function PlantDetailPage({ params }: PlantPageProps) {
         <p className="text-base leading-8 text-zinc-600 md:text-lg">
           {plant.content.intro}
         </p>
+        <div>
+          <Link
+            href={`/mein-garten?plant=${plant.slug}`}
+            className="inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800"
+          >
+            Meinem Garten hinzufuegen
+          </Link>
+        </div>
       </section>
 
       <section className="grid gap-5 pb-10 md:grid-cols-2 md:pb-14">
