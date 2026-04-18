@@ -1,8 +1,9 @@
+import { TRACK_COLORS } from "@/lib/calendar/timeline";
+
 const legendItems = [
-  { label: "Vorzucht", color: "#f59e0b" },
-  { label: "Direktsaat / Auspflanzen", color: "#65a30d" },
-  { label: "Duengen", color: "#16a34a" },
-  { label: "Ernten", color: "#ef4444" },
+  { label: "Vorzucht / Aussaat", color: TRACK_COLORS.aussaat },
+  { label: "Duengen", color: TRACK_COLORS.duengen },
+  { label: "Ernte", color: TRACK_COLORS.ernte },
 ];
 
 export function CalendarLegend() {
@@ -21,4 +22,3 @@ export function CalendarLegend() {
     </div>
   );
 }
-

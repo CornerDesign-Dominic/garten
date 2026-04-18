@@ -14,10 +14,19 @@ export type CalendarSegment = {
   color: string;
 };
 
+export type CalendarTrackKey = "aussaat" | "duengen" | "ernte";
+
+export type CalendarTrackData = {
+  key: CalendarTrackKey;
+  label: string;
+  color: string;
+  segments: CalendarSegment[];
+};
+
 export type CalendarRowData = {
   plantSlug: string;
   plantName: string;
-  segments: CalendarSegment[];
+  tracks: CalendarTrackData[];
 };
 
 export const CALENDAR_MONTHS: CalendarMonth[] = [
@@ -35,13 +44,20 @@ export const CALENDAR_MONTHS: CalendarMonth[] = [
   { index: 12, label: "Dez" },
 ];
 
-export const MAIN_TIMELINE_COLORS = {
-  vorzucht: "#f59e0b",
-  direktsaat: "#65a30d",
-  auspflanzen: "#65a30d",
+export const TRACK_COLORS = {
+  aussaat: "#84cc16",
   duengen: "#16a34a",
-  ernten: "#ef4444",
+  ernte: "#ef4444",
 } as const;
+
+export const CALENDAR_TRACKS: Array<{
+  key: CalendarTrackKey;
+  label: string;
+}> = [
+  { key: "aussaat", label: "Vorzucht / Aussaat" },
+  { key: "duengen", label: "Duengen" },
+  { key: "ernte", label: "Ernte" },
+];
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -67,19 +83,22 @@ function toPercent(dayOfYear: number, yearDays: number) {
   return ((dayOfYear - 1) / yearDays) * 100;
 }
 
-function resolveSegmentColor(type: PlantTimelineType, fallback: string) {
-  if (type in MAIN_TIMELINE_COLORS) {
-    return MAIN_TIMELINE_COLORS[type as keyof typeof MAIN_TIMELINE_COLORS];
+function mapTypeToTrack(type: PlantTimelineType): CalendarTrackKey {
+  if (type === "duengen") {
+    return "duengen";
   }
-
-  return fallback;
+  if (type === "ernten") {
+    return "ernte";
+  }
+  return "aussaat";
 }
 
 function expandEntryToSegments(entry: PlantTimelineEntry, year: number) {
   const yearDays = daysInYear(year);
   const startDay = toDayOfYear(year, entry.startMonth, entry.startDay);
   const endDay = toDayOfYear(year, entry.endMonth, entry.endDay);
-  const color = resolveSegmentColor(entry.type, entry.color);
+  const track = mapTypeToTrack(entry.type);
+  const color = TRACK_COLORS[track];
 
   if (endDay >= startDay) {
     return [
@@ -116,15 +135,32 @@ function expandEntryToSegments(entry: PlantTimelineEntry, year: number) {
 
 export function buildCalendarRows(plants: Plant[], year: number): CalendarRowData[] {
   return plants.map((plant) => {
+    const groupedSegments: Record<CalendarTrackKey, CalendarSegment[]> = {
+      aussaat: [],
+      duengen: [],
+      ernte: [],
+    };
+
     const segments = plant.timeline
       .flatMap((entry) => expandEntryToSegments(entry, year))
       .sort((a, b) => a.startPercent - b.startPercent);
 
+    for (const segment of segments) {
+      const track = mapTypeToTrack(segment.type);
+      groupedSegments[track].push(segment);
+    }
+
+    const tracks = CALENDAR_TRACKS.map((track) => ({
+      key: track.key,
+      label: track.label,
+      color: TRACK_COLORS[track.key],
+      segments: groupedSegments[track.key],
+    }));
+
     return {
       plantSlug: plant.slug,
       plantName: plant.name,
-      segments,
+      tracks,
     };
   });
 }
-
