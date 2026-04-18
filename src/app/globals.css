@@ -23,4 +23,6 @@ body {
 body {
   background-color: var(--page-green);
   background-image: linear-gradient(180deg, var(--page-green-soft) 0%, var(--page-green) 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
